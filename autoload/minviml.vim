@@ -103,6 +103,7 @@ def MinimizeCommands()
     var rep = line
     # TODO: add commands
     for [k, v] in items({
+      silent: 'sil',
       scriptencoding: 'scripte',
       endfunction: 'endf',
       nohlsearch: 'noh',
@@ -126,11 +127,20 @@ def MinimizeCommands()
       echomsg: 'echom',
       execute: 'exe',
       tabnext: 'tabn',
+      cunmap: 'cu',
+      iunmap: 'iu',
+      lunmap: 'lu',
+      nunmap: 'nu',
+      ounmap: 'ou',
+      xunmap: 'xu',
+      vunmap: 'vu',
+      sunmap: 'sunm',
       echohl: 'echoh',
       #endfor: 'endfo',
       #return: 'retu',
       source: 'so',
       #const: 'cons',
+      unmap: 'unm',
       while: 'wh',
       echo: 'ec',
       nmap: 'nm',
@@ -142,8 +152,8 @@ def MinimizeCommands()
       cmap: 'cm',
       tmap: 'tma',
     })
-      rep = substitute(rep, '^' .. k .. '\>', v, '')
-      rep = substitute(rep, '^' .. v .. '\s\+', v .. ' ', '')
+      rep = substitute(rep, '^\(sil!\?\s\+\)\?' .. k .. '\>', '\1' .. v, '')
+      rep = substitute(rep, '^\(sil!\?\s\+\)\?' .. v .. '\s\+', '\1' .. v .. ' ', '')
     endfor
     # TODO: add settings
     for [k, v] in items({
