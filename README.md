@@ -17,9 +17,10 @@ call minviml#Minify(src, dest)
 ```
 - src ... The default is `%`
 - dest ... The default is
+  - `*vimrc.src.vim` -> `*vimrc`
+  - `*vimrc` -> `*vimrc.min.vim`
   - `*.src.vim` -> `*.vim`
   - `*.vim` -> `*.min.vim`
-  - `*vimrc` -> `*vimrc.min.vim`
 
 When write to `*.src.vim`, minify to `*.vim` automatically.
 
