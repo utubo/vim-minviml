@@ -22,7 +22,7 @@ call minviml#Minify(src, dest)
   - `*.src.vim` -> `*.vim`
   - `*.vim` -> `*.min.vim`
 
-When write to `*.src.vim`, minify to `*.vim` automatically.
+When write to `*.src.vim`, minify automatically.
 
 # Example
 - https://github.com/utubo/vim-tabtoslash/tree/main/autoload<br>
