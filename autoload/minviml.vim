@@ -316,9 +316,11 @@ def MinimizeScriptLocal()
     [rep, strs] = EscapeStrings(rep)
     for [k, v] in items(defs)
       rep = substitute(rep, '\(^\|[^a-zA-Z0-9_:#]\|\<s:\)' .. k, '\1' .. v, 'g')
-      rep = substitute(rep, '<SID>' .. k, '<SID>' .. v, 'g')
     endfor
     rep = UnescapeStrings(rep, strs)
+    for [k, v] in items(defs)
+      rep = substitute(rep, '<SID>' .. k, '<SID>' .. v, 'g')
+    endfor
     add(newLines, rep)
   endfor
   allLines = newLines
