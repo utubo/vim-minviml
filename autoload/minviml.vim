@@ -202,15 +202,15 @@ enddef
 
 def CreateNewNamesMap(joined: string, names: list<string>, format: string = '%s'): dict<any>
   var vals = {}
-  var nameIndex = 0
+  var nameIndex = -1
   for name in names
     while true
+    nameIndex  = nameIndex + 1
     var newName = printf(format, substitute(string(nameIndex), '\(\d\)', '\=nr2char(char2nr(submatch(1)) - char2nr("0") + char2nr("a"))', 'g'))
     if joined !~# '\<' .. newName .. '/>'
       vals[name] = newName
       break
     endif
-    nameIndex  = nameIndex + 1
     endwhile
   endfor
   return vals
