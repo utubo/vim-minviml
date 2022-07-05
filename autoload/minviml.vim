@@ -204,7 +204,6 @@ enddef
 def UnescapeStrings(line: string, strs: list<string>): string
   var rep = line
   for i in reverse(range(0, len(strs) - 1))
-    #rep = substitute(rep, EscMark(i), strs[i], '') TODO bug ?
     rep = substitute(rep, EscMark(i), escape(strs[i], '&\'), 'g')
   endfor
   return rep
@@ -400,7 +399,6 @@ export def Minify(src: string = '%', dest: string = '')
   MinimizeScriptLocal()
   writefile(allLines, eDest)
   redraw
-  echo ''
   echoh Delimiter
   echo 'minify to' eDest
   echoh Normal
