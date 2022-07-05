@@ -236,7 +236,7 @@ enddef
 def ReplaceVals(lines: list<string>, oldToNew: dict<any>, scope: list<string> = []): list<string>
   var newLines = []
   var strs = []
-  var scopeReg = '\(' .. join(extend(['^', '[^a-zA-Z_:]'], scope), '\|') .. '\)'
+  var scopeReg = '\(' .. join(extend(['^', '[^a-zA-Z_:$]'], scope), '\|') .. '\)'
   for line in lines
     var rep = line
     if line !~# NO_MINIFY
