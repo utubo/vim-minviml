@@ -101,8 +101,8 @@ def MinimizeCommands()
   var newLines = []
   for line in allLines
     var rep = line
+    rep = substitute(rep, '^silent\(!\?\)\s\+', 'sil\1 ', '')
     # TODO: add commands
-    rep = substitute(rep, '^silent\>', 'sil', '')
     for [k, v] in items({
       scriptencoding: 'scripte',
       endfunction: 'endf',
