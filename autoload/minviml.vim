@@ -210,17 +210,19 @@ def UnescapeStrings(line: string, strs: list<string>): string
   return rep
 enddef
 
-def CreateNewNamesMap(joined: string, names: list<string>, format: string = '%s'): dict<any>
+def CreateNewNamesMap(joined: string, names: list<string>, opt: dict<any> = {}): dict<any>
   var vals = {}
   var nameIndex = -1
+  var fmt = get(opt, 'format', '%s')
+  var offset = char2nr(get(opt, 'offset', 'a')) - char2nr('0')
   for name in names
     while true
       nameIndex  = nameIndex + 1
       var newName = printf(
-        format,
+        fmt,
         substitute(string(nameIndex),
         '\(\d\)',
-        '\=nr2char(char2nr(submatch(1)) - char2nr("0") + char2nr("a"))', 'g')
+        '\=nr2char(char2nr(submatch(1)) + offset)', 'g')
       )
       if joined !~# '\<' .. newName .. '\>'
         vals[name] = newName
@@ -324,7 +326,7 @@ def MinimizeScriptLocal()
       Put(defNames, substitute(m[2], '^s:', '', ''))
     endif
   endfor
-  var defs = CreateNewNamesMap(join(allLines, ' | '), defNames, 'F%s(')
+  var defs = CreateNewNamesMap(join(allLines, ' | '), defNames, { offset: 'A', format: '%s(' })
   var strs = []
   for line in allLines
     var rep = line
@@ -348,10 +350,29 @@ def MinimizeScriptLocal()
       Put(svalNames, m[2])
     endif
   endfor
-  var svals = CreateNewNamesMap(join(allLines, ' | '), svalNames, 's:%s')
+  var svals = CreateNewNamesMap(join(allLines, ' | '), svalNames, { format: 's:%s' })
   allLines = ReplaceVals(allLines, svals, ['s:'])
 
-  # TODO: the vals without "s:" for vim9script
+  # without "s:" for vim9script
+  if isVim9
+    var sval9Names = []
+    var isDef = false
+    for line in allLines
+      if line =~# '^\(def\|fu\)!\?\s'
+        isDef = true
+      elseif line =~# '^\(enddef\|endf\)$'
+        isDef = false
+      endif
+      if ! isDef
+        var m = matchlist(line, '^\(var\|const\|final\)\s\+\([a-zA-Z_][a-zA-Z_0-9]\+\)\>')
+        if len(m) !=# 0
+          Put(sval9Names, m[2])
+        endif
+      endif
+    endfor
+    var sval9s = CreateNewNamesMap(join(allLines, ' | '), sval9Names, { offset: 'k' })
+    allLines = ReplaceVals(allLines, sval9s, ['s:'])
+  endif
 enddef
 
 def CreateDestPath(src: string): string
