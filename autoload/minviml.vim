@@ -26,7 +26,7 @@ def Put(expr: list<any>, item: any)
   endif
 enddef
 
-" put all submatch(<index>) from <lines> to <target> list.
+# put all submatch(<index>) from <lines> to <target> list.
 def PutMatchStr(target: list<any>, lines: list<string>, pat: string, index: number)
   for line in lines
     var m = matchlist(line, pat)
@@ -219,7 +219,8 @@ def UnescapeStrings(line: string, strs: list<string>): string
   return rep
 enddef
 
-def CreateNewNamesMap(joined: string, names: list<string>, opt: dict<any> = {}): dict<any>
+def CreateNewNamesMap(lines: list<string>, names: list<string>, opt: dict<any> = {}): dict<any>
+  var joined = join(lines, ' | ')
   var vals = {}
   var nameIndex = -1
   var fmt = get(opt, 'format', '%s')
@@ -263,7 +264,6 @@ def ReplaceVals(lines: list<string>, oldToNew: dict<any>, scope: list<string> = 
 enddef
 
 def MinimizeDefLocal(lines: list<string>): list<string>
-  var joined = join(lines, ' | ')
   # find all vals
   var srcVals = []
   extend(srcVals, Scan(matchstr(lines[0], '([^)]*)'), '\<\([a-zA-Z][a-zA-Z0-9_]\+\)\s*:', 1))
@@ -271,7 +271,7 @@ def MinimizeDefLocal(lines: list<string>): list<string>
   lines[0] = substitute(lines[0], ':', escCoron, 'g')
   PutMatchStr(srcVals, lines, '^\(var\|const\|final\|for\)\s\+\([al]:\)\?\([a-zA-Z][a-zA-Z0-9_]\+\)', 3)
   # new names
-  var vals = CreateNewNamesMap(joined, srcVals)
+  var vals = CreateNewNamesMap(lines, srcVals)
   # minify
   var newLines = ReplaceVals(lines, vals, ['l:', 'a:'])
   newLines[0] = substitute(newLines[0], escCoron, ':', 'g')
@@ -279,13 +279,12 @@ def MinimizeDefLocal(lines: list<string>): list<string>
 enddef
 
 def MinimizeFunctionLocal(lines: list<string>): list<string>
-  var joined = join(lines, ' | ')
   # find all vals
   var srcVals = []
   extend(srcVals, Scan(matchstr(lines[0], '([^)]*)'), '\([a-zA-Z][a-zA-Z0-9_]\+\)', 1))
   PutMatchStr(srcVals, lines, '^\(let\|for\)\s\+\([al]:\)\?\([a-zA-Z][a-zA-Z0-9_]\+\)', 3)
   # new names
-  var vals = CreateNewNamesMap(joined, srcVals)
+  var vals = CreateNewNamesMap(lines, srcVals)
   # minify
   return ReplaceVals(lines, vals, ['l:', 'a:'])
 enddef
@@ -322,7 +321,7 @@ def MinimizeScriptLocal()
   var defNames = []
   PutMatchStr(defNames, allLines, '^\(def\|fu\)!\?\s\+\([A-Z][a-zA-Z0-9_]\+(\)', 2)
   PutMatchStr(defNames, allLines, '^\(def\|fu\)!\?\s\+s:\([a-zA-Z][a-zA-Z0-9_]\+(\)', 2)
-  var defs = CreateNewNamesMap(join(allLines, ' | '), defNames, { offset: 'A', format: '%s(' })
+  var defs = CreateNewNamesMap(allLines, defNames, { offset: 'A', format: '%s(' })
   for line in allLines
     var rep = line
     var strs = []
@@ -341,7 +340,7 @@ def MinimizeScriptLocal()
   # s:val
   var svalNames = []
   PutMatchStr(svalNames, allLines, '^\(let\|const\)\s\+\(s:[a-zA-Z_][a-zA-Z_0-9]\+\)\>', 2)
-  var svals = CreateNewNamesMap(join(allLines, ' | '), svalNames, { format: 's:%s' })
+  var svals = CreateNewNamesMap(allLines, svalNames, { format: 's:%s' })
   allLines = ReplaceVals(allLines, svals, ['s:'])
 
   # without "s:" for vim9script
@@ -358,7 +357,7 @@ def MinimizeScriptLocal()
         PutMatchStr(sval9Names, [line], '^\(var\|const\|final\)\s\+\([a-zA-Z_][a-zA-Z_0-9]\+\)\>', 2)
       endif
     endfor
-    var sval9s = CreateNewNamesMap(join(allLines, ' | '), sval9Names, { offset: 'k' })
+    var sval9s = CreateNewNamesMap(allLines, sval9Names, { offset: 'k' })
     allLines = ReplaceVals(allLines, sval9s, ['s:'])
   endif
 enddef
