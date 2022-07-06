@@ -294,7 +294,7 @@ def MinimizeAllDefsLocal()
   var defLines = []
   var isDef = false
   for line in allLines
-    # if line =~# '^\(def\|fu\)!\?\s'
+    if line =~# '^\(def\|fu\)!\?\s'
       isDef = true
       defLines = []
     elseif line =~# '^enddef$\|^endf$'
