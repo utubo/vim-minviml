@@ -362,6 +362,24 @@ def MinimizeScriptLocal()
   endif
 enddef
 
+def RemoveVim8Spaces()
+  if isVim9
+    return
+  endif
+  var newLines = []
+  var strs = []
+  for line in allLines
+    var rep = line
+    if line !~# NO_MINIFY
+      [rep, strs] = EscapeStrings(rep)
+      rep = substitute(rep, '\s*\([.,=+*/-]\)\s*', '\1', 'g')
+      rep = UnescapeStrings(rep, strs)
+    endif
+    add(newLines, rep)
+  endfor
+  allLines = newLines
+enddef
+
 def CreateDestPath(src: string): string
   if src =~# 'vimrc\.src\.vim$'
     return substitute(src, '\.src\.vim$', '', '')
@@ -385,6 +403,7 @@ export def Minify(src: string = '%', dest: string = '')
   RemoveTailComments()
   MinimizeAllDefsLocal()
   MinimizeScriptLocal()
+  RemoveVim8Spaces()
   writefile(allLines, eDest)
   redraw
   echoh Delimiter
