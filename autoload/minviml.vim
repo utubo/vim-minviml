@@ -294,16 +294,16 @@ def MinimizeAllDefsLocal()
   var defLines = []
   var isDef = false
   for line in allLines
-    if line =~# '^enddef$\|^endf$'
+    # if line =~# '^\(def\|fu\)!\?\s'
+      isDef = true
+      defLines = []
+    elseif line =~# '^enddef$\|^endf$'
       isDef = false
       if defLines[0] =~# '^def'
         extend(newLines, MinimizeDefLocal(defLines))
       else
         extend(newLines, MinimizeFunctionLocal(defLines))
       endif
-    elseif line =~# '^\(def\|fu\)!\?\s'
-      isDef = true
-      defLines = []
     endif
     if isDef
       add(defLines, line)
