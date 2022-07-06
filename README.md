@@ -3,6 +3,23 @@
 # vim-minviml
 Minify VIML.
 
+- Before
+  ```vim
+  " Example
+  function s:Hello(name)
+    echo 'hello ' . a:name
+  endfunction
+
+  call s:Hello('viminim')
+  ```
+- After
+  ```vim
+  fu s:A(b)
+  ec 'hello '.a:b
+  endf
+  call s:A('viminim')
+  ```
+
 # Install
 ```vim
 dein#install('utubo/vim-minviml')
