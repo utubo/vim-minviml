@@ -10,14 +10,14 @@ Minify VIML.
     echo 'hello ' . a:name
   endfunction
 
-  call s:Hello('viminim')
+  call s:Hello('minviml')
   ```
 - After
   ```vim
   fu s:A(b)
   ec 'hello '.a:b
   endf
-  call s:A('viminim')
+  call s:A('minviml')
   ```
 
 # Install
