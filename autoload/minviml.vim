@@ -3,6 +3,8 @@ vim9script
 var allLines = ['']
 var isVim9 = false
 var escMark = 'ESCMARK'
+var reserved = ''
+var fixed = ''
 
 def SetupEscMark()
   const joined = join(allLines, '')
@@ -24,6 +26,11 @@ def Put(expr: list<any>, item: any)
   if match(expr, item) ==# -1
     add(expr, item)
   endif
+enddef
+
+def SetupOption(opt: dict<any>)
+  reserved = '^\(' .. join(get(opt, 'reserved', []), '\|') .. '\)$'
+  fixed = '^\(' .. join(get(opt, 'fixed', []), '\|') .. '\)$'
 enddef
 
 # put all submatch(<index>) from <lines> to <target> list.
@@ -226,6 +233,9 @@ def CreateNewNamesMap(lines: list<string>, names: list<string>, opt: dict<any> =
   var fmt = get(opt, 'format', '%s')
   var offset = char2nr(get(opt, 'offset', 'a')) - char2nr('0')
   for name in names
+    if name =~# fixed
+      continue
+    endif
     while true
       nameIndex  = nameIndex + 1
       var newName = printf(
@@ -234,7 +244,7 @@ def CreateNewNamesMap(lines: list<string>, names: list<string>, opt: dict<any> =
         '\(\d\)',
         '\=nr2char(char2nr(submatch(1)) + offset)', 'g')
       )
-      if joined !~# '\<' .. newName .. '\>'
+      if joined !~# '\<' .. newName .. '\>' && newName !~# reserved
         vals[name] = newName
         break
       endif
@@ -392,12 +402,13 @@ def CreateDestPath(src: string): string
   endif
 enddef
 
-export def Minify(src: string = '%', dest: string = '')
+export def Minify(src: string = '%', dest: string = '', opt: dict<any> = {})
   var eSrc = expand(src)
   var eDest = dest != '' ? expand(dest) : CreateDestPath(eSrc)
   allLines = readfile(eSrc)
   isVim9 = allLines[0] ==# 'vim9script'
   SetupEscMark()
+  SetupOption(opt)
   RemoveComments()
   MinimizeCommands()
   RemoveTailComments()
