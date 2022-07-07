@@ -80,6 +80,30 @@ enddef
 
 # -----------------
 # Minify
+def ExpandVirticalBar()
+  var newLines = []
+  const escB = EscMark('B')
+  const escV = EscMark('V')
+  const escOR = EscMark('OR')
+  for line in allLines
+    if match(line, '|') !=# -1 && line !~# NO_MINIFY
+      var rep = line
+      rep = substitute(rep, '\\\\', escB, 'g')
+      rep = substitute(rep, '\\|', escV, 'g')
+      rep = substitute(rep, '||', escOR, 'g')
+      for l in split(rep, '\s*|\s*')
+        var repLine = substitute(l, escV, '\\|', 'g')
+        repLine = substitute(repLine, escB, '\', 'g')
+        repLine = substitute(repLine, escOR, '||', 'g')
+        add(newLines, repLine)
+      endfor
+    else
+      add(newLines, line)
+    endif
+  endfor
+  allLines = newLines
+enddef
+
 const NO_MINIFY_COMMANDS = [
   'nn', # nnoremap
   'vn', # vnoremap
@@ -90,6 +114,7 @@ const NO_MINIFY_COMMANDS = [
   'ln', # lnoremap
   'cno', # cnoremap
   'tno', # tnoremap
+  'com', # command
   'no', # noremap
   'nm', # nmap
   'vm', # vmap
@@ -102,7 +127,7 @@ const NO_MINIFY_COMMANDS = [
   'echoh', # echohl
   'au', # autocmd
 ]
-const NO_MINIFY = '^\(' .. join(NO_MINIFY_COMMANDS, '\|') .. '\)\s'
+const NO_MINIFY = '^\(' .. join(NO_MINIFY_COMMANDS, '\|') .. '\)!\?\s'
 
 def RemoveComments()
   var newLines = []
@@ -426,6 +451,7 @@ export def Minify(src: string = '%', dest: string = '', opt: dict<any> = {})
   EscapeStrings()
   RemoveComments()
   MinifyCommands()
+  ExpandVirticalBar()
   RemoveTailComments()
   MinifyAllDefsLocal()
   MinifyScriptLocal()
@@ -438,4 +464,3 @@ export def Minify(src: string = '%', dest: string = '', opt: dict<any> = {})
   echo 'minify to' eDest
   echoh Normal
 enddef
-
