@@ -145,7 +145,7 @@ def RemoveTailComments()
   allLines = newLines
 enddef
 
-def MinimizeCommands()
+def MinifyCommands()
   var newLines = []
   for line in allLines
     var rep = line
@@ -281,7 +281,7 @@ def ReplaceVals(lines: list<string>, oldToNew: dict<any>, scope: list<string> = 
   return newLines
 enddef
 
-def MinimizeDefLocal(lines: list<string>): list<string>
+def MinifyDefLocal(lines: list<string>): list<string>
   # find all vals
   var srcVals = []
   extend(srcVals, Scan(matchstr(lines[0], '([^)]*)'), '\<\([a-zA-Z][a-zA-Z0-9_]\+\) *:', 1))
@@ -295,7 +295,7 @@ def MinimizeDefLocal(lines: list<string>): list<string>
   return newLines
 enddef
 
-def MinimizeFunctionLocal(lines: list<string>): list<string>
+def MinifyFunctionLocal(lines: list<string>): list<string>
   # find all vals
   var srcVals = []
   extend(srcVals, Scan(matchstr(lines[0], '([^)]*)'), '\([a-zA-Z][a-zA-Z0-9_]\+\)', 1))
@@ -305,7 +305,7 @@ def MinimizeFunctionLocal(lines: list<string>): list<string>
   return ReplaceVals(lines, newVals, ['l:', 'a:'])
 enddef
 
-def MinimizeAllDefsLocal()
+def MinifyAllDefsLocal()
   var newLines = []
   var defLines = []
   var isDef = false
@@ -316,9 +316,9 @@ def MinimizeAllDefsLocal()
     elseif line =~# '^enddef$\|^endf$'
       isDef = false
       if defLines[0] =~# '^def'
-        extend(newLines, MinimizeDefLocal(defLines))
+        extend(newLines, MinifyDefLocal(defLines))
       else
-        extend(newLines, MinimizeFunctionLocal(defLines))
+        extend(newLines, MinifyFunctionLocal(defLines))
       endif
     endif
     if isDef
@@ -331,7 +331,7 @@ def MinimizeAllDefsLocal()
 enddef
 
 var scriptLocalDefs = {}
-def MinimizeScriptLocal()
+def MinifyScriptLocal()
   var newLines = []
 
   # def, function
@@ -377,7 +377,7 @@ def MinimizeScriptLocal()
   endif
 enddef
 
-def MinimizeSIDDefs()
+def MinifySIDDefs()
   var newLines = []
   for line in allLines
     var rep = line
@@ -421,17 +421,17 @@ export def Minify(src: string = '%', dest: string = '', opt: dict<any> = {})
   var eDest = dest != '' ? expand(dest) : CreateDestPath(eSrc)
   allLines = readfile(eSrc)
   isVim9 = allLines[0] ==# 'vim9script'
+  SetupOption(opt)
   SetupEscMark()
   EscapeStrings()
-  SetupOption(opt)
   RemoveComments()
-  MinimizeCommands()
+  MinifyCommands()
   RemoveTailComments()
-  MinimizeAllDefsLocal()
-  MinimizeScriptLocal()
+  MinifyAllDefsLocal()
+  MinifyScriptLocal()
   RemoveVim8Spaces()
   UnescapeStrings()
-  MinimizeSIDDefs()
+  MinifySIDDefs()
   writefile(allLines, eDest)
   redraw
   echoh Delimiter
