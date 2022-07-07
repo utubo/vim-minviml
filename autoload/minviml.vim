@@ -71,6 +71,13 @@ def PutMatchStr(target: list<any>, lines: list<string>, pat: string, index: numb
   endfor
 enddef
 
+var scanResult = []
+def Scan(expr: any, pat: string, index: number = 0): list<string>
+  scanResult = []
+  substitute(expr, pat, '\=add(scanResult, submatch(' .. string(index) .. '))[0]', 'g')
+  return scanResult
+enddef
+
 # -----------------
 # Minify
 const NO_MINIFY_COMMANDS = [
@@ -96,13 +103,6 @@ const NO_MINIFY_COMMANDS = [
   'au', # autocmd
 ]
 const NO_MINIFY = '^\(' .. join(NO_MINIFY_COMMANDS, '\|') .. '\)\s'
-
-var scanResult = []
-def Scan(expr: any, pat: string, index: number = 0): list<string>
-  scanResult = []
-  substitute(expr, pat, '\=add(scanResult, submatch(' .. string(index) .. '))[0]', 'g')
-  return scanResult
-enddef
 
 def RemoveComments()
   var newLines = []
@@ -288,10 +288,9 @@ def MinimizeDefLocal(lines: list<string>): list<string>
   const escCoron = EscMark(':')
   lines[0] = substitute(lines[0], ':', escCoron, 'g')
   PutMatchStr(srcVals, lines, '^\(var\|const\|final\|for\) \([al]:\)\?\([a-zA-Z][a-zA-Z0-9_]\+\)', 3)
-  # new names
-  var vals = CreateNewNamesMap(lines, srcVals)
   # minify
-  var newLines = ReplaceVals(lines, vals, ['l:', 'a:'])
+  var newVals = CreateNewNamesMap(lines, srcVals)
+  var newLines = ReplaceVals(lines, newVals, ['l:', 'a:'])
   newLines[0] = substitute(newLines[0], escCoron, ':', 'g')
   return newLines
 enddef
@@ -301,10 +300,9 @@ def MinimizeFunctionLocal(lines: list<string>): list<string>
   var srcVals = []
   extend(srcVals, Scan(matchstr(lines[0], '([^)]*)'), '\([a-zA-Z][a-zA-Z0-9_]\+\)', 1))
   PutMatchStr(srcVals, lines, '^\(let\|for\) \([al]:\)\?\([a-zA-Z][a-zA-Z0-9_]\+\)', 3)
-  # new names
-  var vals = CreateNewNamesMap(lines, srcVals)
   # minify
-  return ReplaceVals(lines, vals, ['l:', 'a:'])
+  var newVals = CreateNewNamesMap(lines, srcVals)
+  return ReplaceVals(lines, newVals, ['l:', 'a:'])
 enddef
 
 def MinimizeAllDefsLocal()
