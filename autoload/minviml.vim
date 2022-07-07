@@ -2,9 +2,20 @@ vim9script
 
 var allLines = ['']
 var isVim9 = false
-var escMark = 'ESCMARK'
+
+# -----------------
+# Options
 var reserved = ''
 var fixed = ''
+def SetupOption(opt: dict<any>)
+  reserved = '^\(' .. join(get(opt, 'reserved', []), '\|') .. '\)$'
+  fixed = '^\(' .. join(get(opt, 'fixed', []), '\|') .. '\)$'
+enddef
+
+# -----------------
+# Escape strings
+var escMark = 'QQQ'
+var escapedStrs = []
 
 def SetupEscMark()
   const joined = join(allLines, '')
@@ -14,23 +25,40 @@ def SetupEscMark()
       break
     endif
     i = i + 1
-    escMark = 'ESCMARK' .. string(i)
+    escMark = 'QQQ' .. string(i)
   endwhile
 enddef
 
 def EscMark(index: any = ''): string
-  return '<' .. escMark .. ':' .. string(index) .. '>'
+  return printf('<%s_%s>', escMark, index)
 enddef
+
+def EscapeStrings()
+  escapedStrs = []
+  var newLines = []
+  const esc =  '\=EscMark(len(add(escapedStrs, submatch(0))) - 1)'
+  for line in allLines
+    add(newLines, substitute(line, '''\([^'']\|''''\)*''\|"\([^"\\]\|\\.\)*"', esc, 'g'))
+  endfor
+  allLines = newLines
+enddef
+
+def UnescapeStrings()
+  var newLines = []
+  const esc = EscMark('\(\d\+\)')
+  for line in allLines
+    add(newLines, substitute(line, esc, '\=escapedStrs[str2nr(submatch(1))]', 'g'))
+  endfor
+  allLines = newLines
+enddef
+
+# -----------------
+# Utils
 
 def Put(expr: list<any>, item: any)
   if match(expr, item) ==# -1
     add(expr, item)
   endif
-enddef
-
-def SetupOption(opt: dict<any>)
-  reserved = '^\(' .. join(get(opt, 'reserved', []), '\|') .. '\)$'
-  fixed = '^\(' .. join(get(opt, 'fixed', []), '\|') .. '\)$'
 enddef
 
 # put all submatch(<index>) from <lines> to <target> list.
@@ -43,6 +71,8 @@ def PutMatchStr(target: list<any>, lines: list<string>, pat: string, index: numb
   endfor
 enddef
 
+# -----------------
+# Minify
 const NO_MINIFY_COMMANDS = [
   'nn', # nnoremap
   'vn', # vnoremap
@@ -84,7 +114,11 @@ def RemoveComments()
     else
       rep = substitute(rep, '^".*', '', '')
     endif
-    rep = substitute(rep, '(\\\s)\?\s*$', '\1', '')
+    if rep =~# '^set\s\+'
+      rep = substitute(rep, '^set\s\+', 'set ', '')
+    else
+      rep = substitute(rep, '\s\+', ' ', 'g')
+    endif
     if len(rep) !=# 0
       add(newLines, rep)
     endif
@@ -94,19 +128,16 @@ enddef
 
 def RemoveTailComments()
   var newLines = []
-  var strs = []
   for line in allLines
     var rep = line
     if rep !~# NO_MINIFY
-      [rep, strs] = EscapeStrings(rep)
       if isVim9
         rep = substitute(rep, '\s#.*$', ' ', '')
       else
         rep = substitute(rep, '\s"[^"]*$', ' ', '')
       endif
-      rep = UnescapeStrings(rep, strs)
     endif
-    rep = substitute(rep, '\([^\\]\)\s*\s$', '\1', '')
+    rep = substitute(rep, '\(\\\s\)\?\s*$', '\1', '')
     if len(rep) !=# 0
       add(newLines, rep)
     endif
@@ -118,7 +149,7 @@ def MinimizeCommands()
   var newLines = []
   for line in allLines
     var rep = line
-    rep = substitute(rep, '^silent\(!\?\)\s\+', 'sil\1 ', '')
+    rep = substitute(rep, '^silent\(!\?\) ', 'sil\1 ', '')
     # TODO: add commands
     for [k, v] in items({
       scriptencoding: 'scripte',
@@ -169,8 +200,8 @@ def MinimizeCommands()
       cmap: 'cm',
       tmap: 'tma',
     })
-      rep = substitute(rep, '^\(sil!\?\s\+\)\?' .. k .. '\>', '\1' .. v, '')
-      rep = substitute(rep, '^\(sil!\?\s\+\)\?' .. v .. '\s\+', '\1' .. v .. ' ', '')
+      rep = substitute(rep, '^\(sil!\? \)\?' .. k .. '\>', '\1' .. v, '')
+      rep = substitute(rep, '^\(sil!\? \)\?' .. v .. ' ', '\1' .. v .. ' ', '')
     endfor
     # TODO: add settings
     for [k, v] in items({
@@ -199,31 +230,12 @@ def MinimizeCommands()
         undodir: 'udir',
         ruler: 'ru',
     })
-      rep = substitute(rep, '^\(set\|setl\)\s\+\(no\)\?' .. k .. '\>', '\1 \2' .. v, '')
+      rep = substitute(rep, '^\(set\|setl\) \(no\)\?' .. k .. '\>', '\1 \2' .. v, '')
       rep = substitute(rep, '&' .. k .. '\>', '\&' .. v, 'g')
     endfor
     add(newLines, rep)
   endfor
   allLines = newLines
-enddef
-
-var escapedStrs = []
-def EscapeStrings(line: string): list<any>
-  var rep = line
-  escapedStrs = []
-  const esc =  '\=EscMark(len(add(escapedStrs, submatch(0))) - 1)'
-  rep = substitute(rep, '''\([^'']\|''''\)*''', esc, 'g')
-  rep = substitute(rep, '"\([^"\\]\|\\.\)*"', esc, 'g')
-  var strs = extend([], escapedStrs)
-  return [rep, strs]
-enddef
-
-def UnescapeStrings(line: string, strs: list<string>): string
-  var rep = line
-  for i in reverse(range(0, len(strs) - 1))
-    rep = substitute(rep, EscMark(i), escape(strs[i], '&\'), 'g')
-  endfor
-  return rep
 enddef
 
 def CreateNewNamesMap(lines: list<string>, names: list<string>, opt: dict<any> = {}): dict<any>
@@ -260,13 +272,11 @@ def ReplaceVals(lines: list<string>, oldToNew: dict<any>, scope: list<string> = 
   for line in lines
     var rep = line
     if line !~# NO_MINIFY
-      [rep, strs] = EscapeStrings(rep)
       for [k, v] in items(oldToNew)
-        rep = substitute(rep, '\<' .. k .. '\s*:', EscMark(), 'g') # escape dict keys
+        rep = substitute(rep, '\<' .. k .. ' *:', EscMark(), 'g') # escape dict keys
         rep = substitute(rep, scopeReg .. k .. '\([^a-zA-Z0-9_(:]\|$\)', '\1' .. v .. '\2', 'g')
         rep = substitute(rep, EscMark(), k .. ':', 'g') # unescape dict keys
       endfor
-      rep = UnescapeStrings(rep, strs)
     endif
     add(newLines, rep)
   endfor
@@ -276,10 +286,10 @@ enddef
 def MinimizeDefLocal(lines: list<string>): list<string>
   # find all vals
   var srcVals = []
-  extend(srcVals, Scan(matchstr(lines[0], '([^)]*)'), '\<\([a-zA-Z][a-zA-Z0-9_]\+\)\s*:', 1))
+  extend(srcVals, Scan(matchstr(lines[0], '([^)]*)'), '\<\([a-zA-Z][a-zA-Z0-9_]\+\) *:', 1))
   const escCoron = EscMark(':')
   lines[0] = substitute(lines[0], ':', escCoron, 'g')
-  PutMatchStr(srcVals, lines, '^\(var\|const\|final\|for\)\s\+\([al]:\)\?\([a-zA-Z][a-zA-Z0-9_]\+\)', 3)
+  PutMatchStr(srcVals, lines, '^\(var\|const\|final\|for\) \([al]:\)\?\([a-zA-Z][a-zA-Z0-9_]\+\)', 3)
   # new names
   var vals = CreateNewNamesMap(lines, srcVals)
   # minify
@@ -292,7 +302,7 @@ def MinimizeFunctionLocal(lines: list<string>): list<string>
   # find all vals
   var srcVals = []
   extend(srcVals, Scan(matchstr(lines[0], '([^)]*)'), '\([a-zA-Z][a-zA-Z0-9_]\+\)', 1))
-  PutMatchStr(srcVals, lines, '^\(let\|for\)\s\+\([al]:\)\?\([a-zA-Z][a-zA-Z0-9_]\+\)', 3)
+  PutMatchStr(srcVals, lines, '^\(let\|for\) \([al]:\)\?\([a-zA-Z][a-zA-Z0-9_]\+\)', 3)
   # new names
   var vals = CreateNewNamesMap(lines, srcVals)
   # minify
@@ -304,7 +314,7 @@ def MinimizeAllDefsLocal()
   var defLines = []
   var isDef = false
   for line in allLines
-    if line =~# '^\(def\|fu\)!\?\s'
+    if line =~# '^\(def\|fu\)!\? '
       isDef = true
       defLines = []
     elseif line =~# '^enddef$\|^endf$'
@@ -324,24 +334,20 @@ def MinimizeAllDefsLocal()
   allLines = newLines
 enddef
 
+var scriptLocalDefs = {}
 def MinimizeScriptLocal()
   var newLines = []
 
   # def, function
   var defNames = []
-  PutMatchStr(defNames, allLines, '^\(def\|fu\)!\?\s\+\([A-Z][a-zA-Z0-9_]\+(\)', 2)
-  PutMatchStr(defNames, allLines, '^\(def\|fu\)!\?\s\+s:\([a-zA-Z][a-zA-Z0-9_]\+(\)', 2)
-  var defs = CreateNewNamesMap(allLines, defNames, { offset: 'A', format: '%s(' })
+  PutMatchStr(defNames, allLines, '^\(def\|fu\)!\? \([A-Z][a-zA-Z0-9_]\+(\)', 2)
+  PutMatchStr(defNames, allLines, '^\(def\|fu\)!\? s:\([a-zA-Z][a-zA-Z0-9_]\+(\)', 2)
+  scriptLocalDefs = CreateNewNamesMap(allLines, defNames, { offset: 'A', format: '%s(' })
   for line in allLines
     var rep = line
     var strs = []
-    [rep, strs] = EscapeStrings(rep)
-    for [k, v] in items(defs)
+    for [k, v] in items(scriptLocalDefs)
       rep = substitute(rep, '\(^\|[^a-zA-Z0-9_:#]\|\<s:\)' .. k, '\1' .. v, 'g')
-    endfor
-    rep = UnescapeStrings(rep, strs)
-    for [k, v] in items(defs)
-      rep = substitute(rep, '<SID>' .. k, '<SID>' .. v, 'g')
     endfor
     add(newLines, rep)
   endfor
@@ -349,7 +355,7 @@ def MinimizeScriptLocal()
 
   # s:val
   var svalNames = []
-  PutMatchStr(svalNames, allLines, '^\(let\|const\)\s\+\(s:[a-zA-Z_][a-zA-Z_0-9]\+\)\>', 2)
+  PutMatchStr(svalNames, allLines, '^\(let\|const\) \(s:[a-zA-Z_][a-zA-Z_0-9]\+\)\>', 2)
   var svals = CreateNewNamesMap(allLines, svalNames, { format: 's:%s' })
   allLines = ReplaceVals(allLines, svals, ['s:'])
 
@@ -358,13 +364,13 @@ def MinimizeScriptLocal()
     var sval9Names = []
     var isDef = false
     for line in allLines
-      if line =~# '^\(def\|fu\)!\?\s'
+      if line =~# '^\(def\|fu\)!\? '
         isDef = true
       elseif line =~# '^\(enddef\|endf\)$'
         isDef = false
       endif
       if ! isDef
-        PutMatchStr(sval9Names, [line], '^\(var\|const\|final\)\s\+\([a-zA-Z_][a-zA-Z_0-9]\+\)\>', 2)
+        PutMatchStr(sval9Names, [line], '^\(var\|const\|final\) \([a-zA-Z_][a-zA-Z_0-9]\+\)\>', 2)
       endif
     endfor
     var sval9s = CreateNewNamesMap(allLines, sval9Names, { offset: 'k' })
@@ -372,18 +378,27 @@ def MinimizeScriptLocal()
   endif
 enddef
 
+def MinimizeSIDDefs()
+  var newLines = []
+  for line in allLines
+    var rep = line
+    for [k, v] in items(scriptLocalDefs)
+      rep = substitute(rep, '<SID>' .. k, '<SID>' .. v, 'g')
+    endfor
+    add(newLines, rep)
+  endfor
+  allLines = newLines
+enddef
+
 def RemoveVim8Spaces()
   if isVim9
     return
   endif
   var newLines = []
-  var strs = []
   for line in allLines
     var rep = line
     if line !~# NO_MINIFY
-      [rep, strs] = EscapeStrings(rep)
-      rep = substitute(rep, '\s*\([.,=+*/-]\)\s*', '\1', 'g')
-      rep = UnescapeStrings(rep, strs)
+      rep = substitute(rep, ' *\([.,=+*/-]\) *', '\1', 'g')
     endif
     add(newLines, rep)
   endfor
@@ -408,6 +423,7 @@ export def Minify(src: string = '%', dest: string = '', opt: dict<any> = {})
   allLines = readfile(eSrc)
   isVim9 = allLines[0] ==# 'vim9script'
   SetupEscMark()
+  EscapeStrings()
   SetupOption(opt)
   RemoveComments()
   MinimizeCommands()
@@ -415,6 +431,8 @@ export def Minify(src: string = '%', dest: string = '', opt: dict<any> = {})
   MinimizeAllDefsLocal()
   MinimizeScriptLocal()
   RemoveVim8Spaces()
+  UnescapeStrings()
+  MinimizeSIDDefs()
   writefile(allLines, eDest)
   redraw
   echoh Delimiter
