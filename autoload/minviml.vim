@@ -79,6 +79,31 @@ enddef
 
 # -----------------
 # Minify
+const NO_MINIFY_COMMANDS = [
+  'nn', # nnoremap
+  'vn', # vnoremap
+  'xn', # xnoremap
+  'snor', # snoremap
+  'ono', # onoremap
+  'ino', # inoremap
+  'ln', # lnoremap
+  'cno', # cnoremap
+  'tno', # tnoremap
+  'no', # noremap
+  'nm', # nmap
+  'vm', # vmap
+  'xm', # xmap
+  'om', # omap
+  'im', # imap
+  'lm', # lmap
+  'cm', # cmap
+  'tma', # tmap
+  'echoh', # echohl
+  'com', # command
+  'au', # autocmd
+]
+const NO_MINIFY = '^\(' .. join(NO_MINIFY_COMMANDS, '\|') .. '\)!\?\s'
+
 def ExpandVirticalBar()
   var newLines = []
   const escB = EscMark('B')
@@ -102,31 +127,6 @@ def ExpandVirticalBar()
   endfor
   allLines = newLines
 enddef
-
-const NO_MINIFY_COMMANDS = [
-  'nn', # nnoremap
-  'vn', # vnoremap
-  'xn', # xnoremap
-  'snor', # snoremap
-  'ono', # onoremap
-  'ino', # inoremap
-  'ln', # lnoremap
-  'cno', # cnoremap
-  'tno', # tnoremap
-  'com', # command
-  'no', # noremap
-  'nm', # nmap
-  'vm', # vmap
-  'xm', # xmap
-  'om', # omap
-  'im', # imap
-  'lm', # lmap
-  'cm', # cmap
-  'tma', # tmap
-  'echoh', # echohl
-  'au', # autocmd
-]
-const NO_MINIFY = '^\(' .. join(NO_MINIFY_COMMANDS, '\|') .. '\)!\?\s'
 
 def RemoveComments()
   var newLines = []
@@ -456,8 +456,8 @@ export def Minify(src: string = '%', dest: string = '', opt: dict<any> = {})
   redraw
   echoh Delimiter
   echo 'minifing to' eDest '...'
-  redraw
   echoh Normal
+  redraw
   allLines = readfile(eSrc)
   isVim9 = allLines[0] ==# 'vim9script'
   SetupOption(opt)
