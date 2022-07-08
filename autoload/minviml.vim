@@ -33,12 +33,12 @@ def EscMark(index: any = ''): string
   return printf('<%s_%s>', escMark, index)
 enddef
 
-const ESC_STR_PAT = '\=EscMark(len(add(escapedStrs, submatch(0))) - 1)'
+const ESC_STR_SUB = '\=EscMark(len(add(escapedStrs, submatch(0))) - 1)'
 def EscapeStrings()
   escapedStrs = []
   var newLines = []
   for line in allLines
-    add(newLines, substitute(line, '''\([^'']\|''''\)*''\|"\([^"\\]\|\\.\)*"', ESC_STR_PAT, 'g'))
+    add(newLines, substitute(line, '''\([^'']\|''''\)*''\|"\([^"\\]\|\\.\)*"', ESC_STR_SUB, 'g'))
   endfor
   allLines = newLines
 enddef
@@ -314,7 +314,7 @@ def ReplaceNames(lines: list<string>, oldToNew: dict<any>, scope: list<string> =
   for line in lines
     var rep = line
     if line !~# NO_MINIFY
-      rep = substitute(rep, '\<' .. namePat .. ' *:', ESC_STR_PAT, 'g') # escape dict keys
+      rep = substitute(rep, '\<' .. namePat .. ' *:', ESC_STR_SUB, 'g') # escape dict keys
       rep = substitute(rep, pat, (m) => m[1] .. oldToNew[m[2]] .. m[3], 'g')
     endif
     add(newLines, rep)
@@ -364,24 +364,21 @@ enddef
 
 var scriptLocalDefs = {}
 def MinifyScriptLocal()
-  var newLines = []
-
   # def, function
   var defNames = []
-  if isVim9
-    ScanNames(defNames, allLines, ['^\%(def\|fu\)!\? \([A-Z][a-zA-z0-9_]\+(\)'], '\(.\+\)')
-  else
-    ScanNames(defNames, allLines, ['^fu!\? s:\([a-zA-Z][a-zA-Z0-9_]\+(\)'], '\(.\+\)')
-  endif
+  var defPat =
+    isVim9 ? '^\%(def\|fu\)!\? \([A-Z][a-zA-z0-9_]\+\)('
+    :        '^fu!\? s:\([a-zA-Z][a-zA-Z0-9_]\+\)('
+  for line in allLines
+    substitute(line, defPat, (m) => string(add(defNames, m[1])), '')
+  endfor
   scriptLocalDefs = CreateNewNamesMap(allLines, defNames, { offset: 'A', format: '%s(' })
+
   if len(scriptLocalDefs) > 0
-    var pat1 = '\(^\|[^a-zA-Z0-9_:#]\|\<s:\)\(' .. join(keys(scriptLocalDefs), '\|') .. '\)'
-    var pat2 = '\((\)\(' .. join(keys(scriptLocalDefs), '\|') .. '\)'
+    var pat = printf('[a-zA-Z0-9_:#]\@<!\(s:\)\?\(%s\)\@>(', join(keys(scriptLocalDefs), '\|'))
+    var newLines = []
     for line in allLines
-      var rep = line
-      rep = substitute(rep, pat1, (m) => m[1] .. scriptLocalDefs[m[2]], 'g')
-      rep = substitute(rep, pat2, (m) => m[1] .. scriptLocalDefs[m[2]], 'g')
-      add(newLines, rep)
+      add(newLines, substitute(line, pat, (m) => m[1] .. scriptLocalDefs[m[2]], 'g'))
     endfor
     allLines = newLines
   endif
@@ -416,7 +413,7 @@ def MinifySIDDefs()
   if len(scriptLocalDefs) ==# 0
     return
   endif
-  var pat = '<SID>\(' .. join(keys(scriptLocalDefs), '\|') .. '\)'
+  var pat = '<SID>\(' .. join(keys(scriptLocalDefs), '\|') .. '\)\@>('
   var newLines = []
   for line in allLines
     var rep = line
@@ -456,6 +453,11 @@ enddef
 export def Minify(src: string = '%', dest: string = '', opt: dict<any> = {})
   var eSrc = expand(src)
   var eDest = dest != '' ? expand(dest) : CreateDestPath(eSrc)
+  redraw
+  echoh Delimiter
+  echo 'minifing to' eDest '...'
+  redraw
+  echoh Normal
   allLines = readfile(eSrc)
   isVim9 = allLines[0] ==# 'vim9script'
   SetupOption(opt)
