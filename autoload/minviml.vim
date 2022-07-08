@@ -352,9 +352,9 @@ def MinifyScriptLocal()
   # def, function
   var defNames = []
   if isVim9
-    ScanNames(defNames, allLines, ['^\%(def\|fu\)!\? \([^(]\+(\)'], '\([A-Z][a-zA-Z0-9_]\+(\)')
+    ScanNames(defNames, allLines, ['^\%(def\|fu\)!\? \([A-Z][a-zA-z0-9_]\+(\)'], '\(.\+\)')
   else
-    ScanNames(defNames, allLines, ['^fu!\? s:\([^(]\+(\)'], '\([a-zA-Z][a-zA-Z0-9_]\+(\)')
+    ScanNames(defNames, allLines, ['^fu!\? s:\([a-zA-Z][a-zA-Z0-9_]\+(\)'], '\(.\+\)')
   endif
   scriptLocalDefs = CreateNewNamesMap(allLines, defNames, { offset: 'A', format: '%s(' })
   for line in allLines
