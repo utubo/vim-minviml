@@ -33,12 +33,12 @@ def EscMark(index: any = ''): string
   return printf('<%s_%s>', escMark, index)
 enddef
 
+const ESC_STR_PAT = '\=EscMark(len(add(escapedStrs, submatch(0))) - 1)'
 def EscapeStrings()
   escapedStrs = []
   var newLines = []
-  const esc =  '\=EscMark(len(add(escapedStrs, submatch(0))) - 1)'
   for line in allLines
-    add(newLines, substitute(line, '''\([^'']\|''''\)*''\|"\([^"\\]\|\\.\)*"', esc, 'g'))
+    add(newLines, substitute(line, '''\([^'']\|''''\)*''\|"\([^"\\]\|\\.\)*"', ESC_STR_PAT, 'g'))
   endfor
   allLines = newLines
 enddef
@@ -310,12 +310,11 @@ def ReplaceNames(lines: list<string>, oldToNew: dict<any>, scope: list<string> =
   const scopePat = '\(' .. join(extend(['^', '[^a-zA-Z_:$]'], scope), '\|') .. '\)'
   const namePat = '\(' .. join(keys(oldToNew), '\|') .. '\)'
   const pat = scopePat .. namePat .. '\([^a-zA-Z0-9_(:]\|$\)'
-  const esc =  '\=EscMark(len(add(escapedStrs, submatch(0))) - 1)'
   var newLines = []
   for line in lines
     var rep = line
     if line !~# NO_MINIFY
-      rep = substitute(rep, '\<' .. namePat .. ' *:', esc, 'g') # escape dict keys
+      rep = substitute(rep, '\<' .. namePat .. ' *:', ESC_STR_PAT, 'g') # escape dict keys
       rep = substitute(rep, pat, (m) => m[1] .. oldToNew[m[2]] .. m[3], 'g')
     endif
     add(newLines, rep)
@@ -421,7 +420,7 @@ def MinifySIDDefs()
   var newLines = []
   for line in allLines
     var rep = line
-    rep = substitute(rep, pat, (m) => '<SID>' .. scriptLocalDefs[m[2]], 'g')
+    rep = substitute(rep, pat, (m) => '<SID>' .. scriptLocalDefs[m[1]], 'g')
     add(newLines, rep)
   endfor
   allLines = newLines
