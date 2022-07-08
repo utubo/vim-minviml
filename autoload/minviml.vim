@@ -62,21 +62,6 @@ def Scan(expr: any, pat: string, index: number = 0): list<string>
   return scanResult
 enddef
 
-def ScanNames(names: list<any>, lines: list<string>, pat1: list<string>, pat2: string)
-  for line in lines
-    for pat in pat1
-      var m = matchlist(line, pat)
-      if len(m) !=# 0
-        for n in Scan(m[1], pat2, 1)
-          if index(names, n) ==# -1
-            add(names, n)
-          endif
-        endfor
-      endif
-    endfor
-  endfor
-enddef
-
 # -----------------
 # Minify
 const NO_MINIFY_COMMANDS = [
@@ -276,6 +261,21 @@ def MinifyCommands()
   allLines = newLines
 enddef
 
+def ScanNames(names: list<any>, lines: list<string>, pat1: list<string>, pat2: string)
+  for line in lines
+    for pat in pat1
+      var m = matchlist(line, pat)
+      if len(m) !=# 0
+        for n in Scan(m[1], pat2, 1)
+          if index(names, n) ==# -1
+            add(names, n)
+          endif
+        endfor
+      endif
+    endfor
+  endfor
+enddef
+
 def CreateNewNamesMap(lines: list<string>, names: list<string>, opt: dict<any> = {}): dict<any>
   var joined = join(lines, ' | ')
   var vals = {}
@@ -309,12 +309,13 @@ def ReplaceNames(lines: list<string>, oldToNew: dict<any>, scope: list<string> =
   endif
   const scopePat = '\(' .. join(extend(['^', '[^a-zA-Z_:$]'], scope), '\|') .. '\)'
   const namePat = '\(' .. join(keys(oldToNew), '\|') .. '\)'
+  const dictKeys = '\<' .. namePat .. ' *:'
   const pat = scopePat .. namePat .. '\([^a-zA-Z0-9_(:]\|$\)'
   var newLines = []
   for line in lines
     var rep = line
     if line !~# NO_MINIFY
-      rep = substitute(rep, '\<' .. namePat .. ' *:', ESC_STR_SUB, 'g') # escape dict keys
+      rep = substitute(rep, dictKeys, ESC_STR_SUB, 'g')
       rep = substitute(rep, pat, (m) => m[1] .. oldToNew[m[2]] .. m[3], 'g')
     endif
     add(newLines, rep)
