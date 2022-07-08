@@ -55,9 +55,8 @@ enddef
 # -----------------
 # Utils
 
-var scanResult = []
 def Scan(expr: any, pat: string, index: number = 0): list<string>
-  scanResult = []
+  var scanResult = []
   substitute(expr, pat, (m) => add(scanResult, m[index])[0], 'g')
   return scanResult
 enddef
