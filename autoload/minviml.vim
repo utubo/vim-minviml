@@ -395,7 +395,7 @@ def MinifyScriptLocal()
         isDef = false
       endif
       if ! isDef
-        ScanNames(sval9Names, allLines, ['^\%(var\|const\|final\) \([^=]\+\)', '^for \([^=]\+\) in '], '\([a-zA-Z_][a-zA-Z0-9_]\+\)')
+        ScanNames(sval9Names, [line], ['^\%(var\|const\|final\) \([^=]\+\)', '^for \([^=]\+\) in '], '\([a-zA-Z_][a-zA-Z0-9_]\+\)')
       endif
     endfor
     var sval9s = CreateNewNamesMap(allLines, sval9Names, { offset: 'k' })
