@@ -170,92 +170,107 @@ def RemoveTailComments()
 enddef
 
 def MinifyCommands()
+  # TODO: add commands
+  const COMMAND_DICT = {
+    scriptencoding: 'scripte',
+    endfunction: 'endf',
+    nohlsearch: 'noh',
+    endwhile: 'endw',
+    function: 'fu',
+    setlocal: 'setl',
+    tabclose: 'tabc',
+    nnoremap: 'nn',
+    vnoremap: 'vn',
+    xnoremap: 'xn',
+    snoremap: 'snor',
+    onoremap: 'ono',
+    inoremap: 'ino',
+    lnoremap: 'ln',
+    cnoremap: 'cno',
+    tnoremap: 'tno',
+    noremap: 'no',
+    augroup: 'aug',
+    autocmd: 'au',
+    command: 'com',
+    echomsg: 'echom',
+    execute: 'exe',
+    tabnext: 'tabn',
+    cunmap: 'cu',
+    iunmap: 'iu',
+    lunmap: 'lu',
+    nunmap: 'nu',
+    ounmap: 'ou',
+    xunmap: 'xu',
+    vunmap: 'vu',
+    sunmap: 'sunm',
+    echohl: 'echoh',
+    #endfor: 'endfo',
+    #return: 'retu',
+    source: 'so',
+    #const: 'cons',
+    unmap: 'unm',
+    while: 'wh',
+    echo: 'ec',
+    nmap: 'nm',
+    vmap: 'vm',
+    xmap: 'xm',
+    omap: 'om',
+    imap: 'im',
+    lmap: 'lm',
+    cmap: 'cm',
+    tmap: 'tma',
+  }
+  # TODO: add settings
+  const SETTING_DICT = {
+      fileencodings: 'fencs',
+      fileencoding: 'fenc',
+      breakindent: 'bri',
+      smartindent: 'si',
+      softtabstop: 'st',
+      ttimeoutlen: 'ttm',
+      virtualedit: 've',
+      autoindent: 'ai',
+      backupskip: 'bsk',
+      laststatus: 'ls',
+      ambiwidth: 'ambw',
+      autochdir: 'acd',
+      expandtab: 'et',
+      fillchars: 'fcs',
+      listchars: 'lcs',
+      incsearch: 'is',
+      encoding: 'enc',
+      filetype: 'ft',
+      hlsearch: 'hls',
+      wildmenu: 'wmnu',
+      belloff: 'bo',
+      tabstop: 'ts',
+      undodir: 'udir',
+      ruler: 'ru',
+  }
+  const COMMAND_PAT = join(keys(COMMAND_DICT), '\|')
+  const SETTING_PAT = join(keys(SETTING_DICT), '\|')
   var newLines = []
   for line in allLines
     var rep = line
     rep = substitute(rep, '^silent\(!\?\) ', 'sil\1 ', '')
-    # TODO: add commands
-    for [k, v] in items({
-      scriptencoding: 'scripte',
-      endfunction: 'endf',
-      nohlsearch: 'noh',
-      endwhile: 'endw',
-      function: 'fu',
-      setlocal: 'setl',
-      tabclose: 'tabc',
-      nnoremap: 'nn',
-      vnoremap: 'vn',
-      xnoremap: 'xn',
-      snoremap: 'snor',
-      onoremap: 'ono',
-      inoremap: 'ino',
-      lnoremap: 'ln',
-      cnoremap: 'cno',
-      tnoremap: 'tno',
-      noremap: 'no',
-      augroup: 'aug',
-      autocmd: 'au',
-      command: 'com',
-      echomsg: 'echom',
-      execute: 'exe',
-      tabnext: 'tabn',
-      cunmap: 'cu',
-      iunmap: 'iu',
-      lunmap: 'lu',
-      nunmap: 'nu',
-      ounmap: 'ou',
-      xunmap: 'xu',
-      vunmap: 'vu',
-      sunmap: 'sunm',
-      echohl: 'echoh',
-      #endfor: 'endfo',
-      #return: 'retu',
-      source: 'so',
-      #const: 'cons',
-      unmap: 'unm',
-      while: 'wh',
-      echo: 'ec',
-      nmap: 'nm',
-      vmap: 'vm',
-      xmap: 'xm',
-      omap: 'om',
-      imap: 'im',
-      lmap: 'lm',
-      cmap: 'cm',
-      tmap: 'tma',
-    })
-      rep = substitute(rep, '^\(sil!\? \)\?' .. k .. '\>', '\1' .. v, '')
-    endfor
-    # TODO: add settings
-    for [k, v] in items({
-        fileencodings: 'fencs',
-        fileencoding: 'fenc',
-        breakindent: 'bri',
-        smartindent: 'si',
-        softtabstop: 'st',
-        ttimeoutlen: 'ttm',
-        virtualedit: 've',
-        autoindent: 'ai',
-        backupskip: 'bsk',
-        laststatus: 'ls',
-        ambiwidth: 'ambw',
-        autochdir: 'acd',
-        expandtab: 'et',
-        fillchars: 'fcs',
-        listchars: 'lcs',
-        incsearch: 'is',
-        encoding: 'enc',
-        filetype: 'ft',
-        hlsearch: 'hls',
-        wildmenu: 'wmnu',
-        belloff: 'bo',
-        tabstop: 'ts',
-        undodir: 'udir',
-        ruler: 'ru',
-    })
-      rep = substitute(rep, '^\(set\|setl\) \(no\)\?' .. k .. '\>', '\1 \2' .. v, '')
-      rep = substitute(rep, '&' .. k .. '\>', '\&' .. v, 'g')
-    endfor
+    rep = substitute(
+      rep,
+      '^\(sil!\? \)\?\(' .. COMMAND_PAT .. '\)\>',
+      (m) => m[1] .. COMMAND_DICT[m[2]],
+      ''
+    )
+    rep = substitute(
+      rep,
+      '^\(set\|setl\) \(no\)\?\(' .. SETTING_PAT .. '\)\>',
+      (m) => m[1] .. ' ' .. m[2] .. SETTING_DICT[m[3]],
+      ''
+    )
+    rep = substitute(
+      rep,
+      '&\(' .. SETTING_PAT .. '\)\>',
+      (m) => '&' .. SETTING_DICT[m[1]],
+      'g'
+    )
     add(newLines, rep)
   endfor
   allLines = newLines
@@ -288,17 +303,20 @@ def CreateNewNamesMap(lines: list<string>, names: list<string>, opt: dict<any> =
   return vals
 enddef
 
-def ReplaceVals(lines: list<string>, oldToNew: dict<any>, scope: list<string> = []): list<string>
+def ReplaceNames(lines: list<string>, oldToNew: dict<any>, scope: list<string> = []): list<string>
+  if len(oldToNew) ==# 0
+    return lines
+  endif
+  const scopePat = '\(' .. join(extend(['^', '[^a-zA-Z_:$]'], scope), '\|') .. '\)'
+  const namePat = '\(' .. join(keys(oldToNew), '\|') .. '\)'
+  const pat = scopePat .. namePat .. '\([^a-zA-Z0-9_(:]\|$\)'
+  const esc =  '\=EscMark(len(add(escapedStrs, submatch(0))) - 1)'
   var newLines = []
-  var scopeReg = '\(' .. join(extend(['^', '[^a-zA-Z_:$]'], scope), '\|') .. '\)'
   for line in lines
     var rep = line
     if line !~# NO_MINIFY
-      for [k, v] in items(oldToNew)
-        rep = substitute(rep, '\<' .. k .. ' *:', EscMark(), 'g') # escape dict keys
-        rep = substitute(rep, scopeReg .. k .. '\([^a-zA-Z0-9_(:]\|$\)', '\1' .. v .. '\2', 'g')
-        rep = substitute(rep, EscMark(), k .. ':', 'g') # unescape dict keys
-      endfor
+      rep = substitute(rep, '\<' .. namePat .. ' *:', esc, 'g') # escape dict keys
+      rep = substitute(rep, pat, (m) => m[1] .. oldToNew[m[2]] .. m[3], 'g')
     endif
     add(newLines, rep)
   endfor
@@ -319,7 +337,7 @@ def MinifyDefLocal(lines: list<string>): list<string>
   ScanNames(srcVals, lines, ['^\%(var\|const\|final\|let\)\( [^=]\+\)', '^for\( [^=]\+\) in '], '\%(a:\|[ ,]\|[ ,]l:\)\([a-zA-Z_][a-zA-Z0-9_]\+\)')
   # minify
   var newVals = CreateNewNamesMap(lines, srcVals)
-  var newLines = ReplaceVals(lines, newVals, ['l:', 'a:'])
+  var newLines = ReplaceNames(lines, newVals, ['l:', 'a:'])
   newLines[0] = substitute(newLines[0], escCoron, ':', 'g')
   return newLines
 enddef
@@ -357,14 +375,17 @@ def MinifyScriptLocal()
     ScanNames(defNames, allLines, ['^fu!\? s:\([a-zA-Z][a-zA-Z0-9_]\+(\)'], '\(.\+\)')
   endif
   scriptLocalDefs = CreateNewNamesMap(allLines, defNames, { offset: 'A', format: '%s(' })
-  for line in allLines
-    var rep = line
-    for [k, v] in items(scriptLocalDefs)
-      rep = substitute(rep, '\(^\|[^a-zA-Z0-9_:#]\|\<s:\)' .. k, '\1' .. v, 'g')
+  if len(scriptLocalDefs) > 0
+    var pat1 = '\(^\|[^a-zA-Z0-9_:#]\|\<s:\)\(' .. join(keys(scriptLocalDefs), '\|') .. '\)'
+    var pat2 = '\((\)\(' .. join(keys(scriptLocalDefs), '\|') .. '\)'
+    for line in allLines
+      var rep = line
+      rep = substitute(rep, pat1, (m) => m[1] .. scriptLocalDefs[m[2]], 'g')
+      rep = substitute(rep, pat2, (m) => m[1] .. scriptLocalDefs[m[2]], 'g')
+      add(newLines, rep)
     endfor
-    add(newLines, rep)
-  endfor
-  allLines = newLines
+    allLines = newLines
+  endif
 
   # valiables
   if isVim9
@@ -382,23 +403,25 @@ def MinifyScriptLocal()
       endif
     endfor
     var sval9s = CreateNewNamesMap(allLines, sval9Names, { offset: 'k' })
-    allLines = ReplaceVals(allLines, sval9s, ['s:'])
+    allLines = ReplaceNames(allLines, sval9s, ['s:'])
   else
     # s:val
     var svalNames = []
     ScanNames(svalNames, allLines, ['^\%(let\|const\) \([^=]\+\)', '^for \([^=]\+\) in '], '\(s:[a-zA-Z_][a-zA-Z0-9_]\+\)')
     var svals = CreateNewNamesMap(allLines, svalNames, { format: 's:%s' })
-    allLines = ReplaceVals(allLines, svals, ['s:'])
+    allLines = ReplaceNames(allLines, svals, ['s:'])
   endif
 enddef
 
 def MinifySIDDefs()
+  if len(scriptLocalDefs) ==# 0
+    return
+  endif
+  var pat = '<SID>\(' .. join(keys(scriptLocalDefs), '\|') .. '\)'
   var newLines = []
   for line in allLines
     var rep = line
-    for [k, v] in items(scriptLocalDefs)
-      rep = substitute(rep, '<SID>' .. k, '<SID>' .. v, 'g')
-    endfor
+    rep = substitute(rep, pat, (m) => '<SID>' .. scriptLocalDefs[m[2]], 'g')
     add(newLines, rep)
   endfor
   allLines = newLines
