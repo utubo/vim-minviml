@@ -22,7 +22,7 @@ Minify VIML.
 
 # Install
 ```vim
-dein#install('utubo/vim-minviml')
+dein#add('utubo/vim-minviml')
 ```
 
 # Require
