@@ -340,7 +340,7 @@ def MinifyDefLocal(lines: list<string>): list<string>
   # a:val
   const escCoron = EscMark(':')
   var srcVals = []
-  if lines[0] =~# '^def!\? '
+  if lines[0] =~# '^\(export \)\?def!\? '
     extend(srcVals, Scan(matchstr(lines[0], '([^)]*)'), '\<\([a-zA-Z][a-zA-Z0-9_]\+\) *:', 1))
     lines[0] = substitute(lines[0], ':', escCoron, 'g')
   else
@@ -360,7 +360,7 @@ def MinifyAllDefsLocal()
   var defLines = []
   var isDef = false
   for line in allLines
-    if line =~# '^\(def\|fu\)!\? '
+    if line =~# '^\(export \)\?\(def\|fu\)!\? '
       isDef = true
       defLines = []
     elseif line =~# '^enddef$\|^endf$'
@@ -403,7 +403,7 @@ def MinifyScriptLocal()
     var sval9Names = []
     var isDef = false
     for line in allLines
-      if line =~# '^\(def\|fu\)!\? '
+      if line =~# '^\((export )\?def\|fu\)!\? '
         isDef = true
       elseif line =~# '^\(enddef\|endf\)$'
         isDef = false
