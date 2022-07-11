@@ -54,7 +54,7 @@ const [t, lk] = [1, s]
 final f = 'FINAL'
 for [ll, lm] in [[1, 2], [3, t[0]]]
 endfor
-export def! This_is_expoeted(a: string)
+export def! This_is_exported(a: string)
 var b = a
 enddef
 def C()

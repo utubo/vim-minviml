@@ -43,7 +43,7 @@ let s:f=0
 const [s:g,s:h]=[1,s:f]
 for [s:i,s:j] in [[1,2],[3,s:g[0]]]
 endfor
-fu! vim8test#This_is_expoeted(b)
+fu! vim8test#This_is_exported(b)
 let l:c=a:b
 endf
 let [s:ba,s:ba]=['a'.'b',1+2-3*4/5]

@@ -102,7 +102,7 @@ final f = 'FINAL'
 for [aaa, bbb]  in [[1, 2], [3, const1[0]]]
 endfor
 
-export def! This_is_expoeted(arg1: string)
+export def! This_is_exported(arg1: string)
   var abc = arg1
 enddef
 

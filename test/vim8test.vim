@@ -87,7 +87,7 @@ const [s:const1, s:const2] = [1, s:scriptLocalVal]
 for [s:aaa, s:bbb]  in [[1, 2], [3, s:const1[0]]]
 endfor
 
-function! vim8test#This_is_expoeted(arg1)
+function! vim8test#This_is_exported(arg1)
   let l:abc = a:arg1
 endfunction
 
@@ -113,5 +113,4 @@ let Normal = 0
 echohl Normal " this is not renamed.
 
 let g:this_is_global_val_not_renamed = 0
-
 
