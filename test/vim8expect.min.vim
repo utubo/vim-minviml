@@ -17,25 +17,26 @@ endtry
 finish
 ec 1
 ec \ 
-ec 'Join line'
+let s:f=0
+ec 'Join line s:string_is_not_changed'
 ec "split"
 echo "line"
-let s:f=0
-const [s:g,s:h]=[1,s:f]
-for [s:i,s:j] in [[1,2],[3,s:g[0]]]
+let s:g=0
+const [s:h,s:i]=[1,s:g]
+for [s:j,s:ba] in [[1,2],[3,s:h[0]]]
 endfor
 fu! s:A(b,c)
 let d=a:b
 let l:e={
 arg2: 'dict key is not renamed.'
 }
-let f=[s:f,0]
-for l:d in range(1,s:g[1])
+let f=[s:g,0]
+for l:d in range(1,s:h[1])
 endfor
 const l:g=1
 enddef
 exe 'nnoremap <SID>A()'
 ec 'this is string, so be not renamed. s:scriptLocalVal'
-let s:ba=0
+let s:bb=0
 echoe Normal
 let this_is_global_val_not_renamed=0

@@ -88,6 +88,18 @@ const NO_MINIFY_COMMANDS = [
 ]
 const NO_MINIFY = '^\(' .. join(NO_MINIFY_COMMANDS, '\|') .. '\)!\?\s'
 
+def JoinLines()
+  var newLines = []
+  for line in allLines
+    if line =~# '^\s*\\'
+      newLines[-1] ..= substitute(line, '^\s*\\', '', '')
+    else
+      add(newLines, line)
+    endif
+  endfor
+  allLines = newLines
+enddef
+
 def ExpandVirticalBar()
   var newLines = []
   const escB = EscMark('B')
@@ -131,11 +143,7 @@ def RemoveComments()
     if len(rep) ==# 0
       continue
     endif
-    if rep =~# '^\\'
-      newLines[-1] ..= rep[1 : ]
-    else
-      add(newLines, rep)
-    endif
+    add(newLines, rep)
   endfor
   allLines = newLines
 enddef
@@ -468,6 +476,7 @@ export def Minify(src: string = '%', dest: string = '', opt: dict<any> = {})
   isVim9 = allLines[0] ==# 'vim9script'
   SetupOption(opt)
   SetupEscMark()
+  JoinLines()
   EscapeStrings()
   RemoveComments()
   MinifyCommands()

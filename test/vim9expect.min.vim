@@ -18,26 +18,27 @@ endtry
 finish
 ec 1
 ec \ " keep escaped space
-ec 'Join line'
+var p = 0
+ec 'Join line string_is_not_changed'
 ec "split"
 echo "line"
-var p = 0
-const [q, r] = [1, p]
+var q = 0
+const [r, s] = [1, q]
 final f = 'FINAL'
-for [s, t] in [[1, 2], [3, q[0]]]
+for [t, lk] in [[1, 2], [3, r[0]]]
 endfor
 def A(a: dict<any>, b: number): string
 var c = a
 var d = {
 arg2: 'dict key is not renamed.'
 }
-var e = [p, 0]
-for c in range(1, q[1])
+var e = [q, 0]
+for c in range(1, r[1])
 endfor
 const f = 1
 final g = '2'
 enddef
 exe 'nnoremap <SID>A()'
 ec 'this is string, so be not renamed. scriptLocalVal'
-var lk = 0
-echoe lk
+var ll = 0
+echoe ll
