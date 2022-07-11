@@ -100,10 +100,11 @@ def ExpandVirticalBar()
       rep = substitute(rep, '\\|', escV, 'g')
       rep = substitute(rep, '||', escOR, 'g')
       for l in split(rep, '\s*|\s*')
-        var repLine = substitute(l, escV, '\\|', 'g')
-        repLine = substitute(repLine, escB, '\', 'g')
-        repLine = substitute(repLine, escOR, '||', 'g')
-        add(newLines, repLine)
+        var r = l
+        r = substitute(r, escOR, '||', 'g')
+        r = substitute(r, escV, '\\|', 'g')
+        r = substitute(r, escB, '\', 'g')
+        add(newLines, r)
       endfor
     else
       add(newLines, line)
@@ -127,7 +128,12 @@ def RemoveComments()
     else
       rep = substitute(rep, '\s\+', ' ', 'g')
     endif
-    if len(rep) !=# 0
+    if len(rep) ==# 0
+      continue
+    endif
+    if rep =~# '^\\'
+      newLines[-1] ..= rep[1 : ]
+    else
       add(newLines, rep)
     endif
   endfor
