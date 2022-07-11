@@ -61,6 +61,36 @@ call minviml#Minify(src, dest, options)
   let s:val3=3 " '.*3' is fixed.
   ```
 
+## Note: All strings will not be changed.
+- e.g.1
+  - Before
+    ```vim
+    let s:foo = 1
+    echo get('s:', 'foo', 0) " echo 1
+    ```
+  - After
+    ```vim
+    let s:a=1
+    ec get('s:','foo',0) " echo 0
+    ```
+- e.g.2
+  - Before
+    ```vim
+    function! s:bar()
+      echo 'foo!'
+    endfunction
+    exe 'call <SID>bar()'
+    exe 'call <SI' . 'D>bar()'
+    ```
+  - After
+    ```vim
+    fu! s:A()
+    ec 'foo!'
+    endf
+    exe 'call <SID>A()' " 😊 `<SID>{function name}` is supported !
+    exe 'call <SI' . 'D>bar()' " 😢
+    ```
+
 # Example
 - https://github.com/utubo/vim-tabtoslash/tree/main/autoload<br>
   [tabtoslash.src.vim ](https://github.com/utubo/vim-tabtoslash/blob/main/autoload/tabtoslash.src.vim)
