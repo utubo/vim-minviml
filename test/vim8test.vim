@@ -23,7 +23,7 @@ finish
 
 " ----------
 " SetupOption(opt)
-" TODO
+" test is vim9test.vim
 
 " ----------
 " SetupEscMark()
@@ -44,7 +44,6 @@ echo "string_is_not_changed"
 
 " ----------
 " RemoveComments()
-" TODO
 " comment
   echo trim
 echo 1 " remove comment
@@ -54,7 +53,7 @@ echo \ " keep escaped space
 
 " ----------
 " MinifyCommands()
-" TODO
+" test in vim9test.vim
 
 " ----------
 " ExpandVirticalBar()
@@ -82,7 +81,6 @@ endfunction
 
 " ----------
 " MinifyScriptLocal()
-" TODO
 let s:scriptLocalVal = 0
 const [s:const1, s:const2] = [1, s:scriptLocalVal]
 

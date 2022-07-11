@@ -46,7 +46,6 @@ echo "string_is_not_changed"
 
 # ----------
 # RemoveComments()
-# TODO
 # comment
   echo trim
 echo 1 # remove comment
@@ -96,7 +95,6 @@ endfunction
 
 # ----------
 # MinifyScriptLocal()
-# TODO
 var scriptLocalVal = 0
 const [const1, const2] = [1, scriptLocalVal]
 final f = 'FINAL'
