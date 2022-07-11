@@ -1,18 +1,18 @@
-let tmpfile=tempname()
+let s:a=tempname()
 try
-let srcfile=expand('<sfile>')
-let expfile=substitute(srcfile,'test\.vim$','expect.min.vim','')
-call minviml#Minify(srcfile,tmpfile)
-let expect=join(readfile(expfile),'\n')
-let actual=join(readfile(tmpfile),'\n')
-if expect==# actual
+let s:b=expand('<sfile>')
+let s:c=substitute(s:b,'test\.vim$','expect.min.vim','')
+call minviml#Minify(s:b,s:a)
+let s:d=join(readfile(s:c),'\n')
+let s:e=join(readfile(s:a),'\n')
+if s:d==# s:e
 ec 'TEST OK !'
 else
-exe 'tabe '.expfile
-exe 'diffs '.tmpfile
+exe 'tabe '.s:c
+exe 'diffs '.s:a
 endif
 finally
-call delete(tmpfile)
+call delete(s:a)
 endtry
 finish
 ec 1
@@ -20,21 +20,22 @@ ec \
 ec 'Join line'
 ec "split"
 echo "line"
-let scriptLocalVal=0
-const [const1,const2]=[1,scriptLocalVal]
-for [aaa,bbb] in [[1,2],[3,const1[0]]]
+let s:f=0
+const [s:g,s:h]=[1,s:f]
+for [s:i,s:j] in [[1,2],[3,s:g[0]]]
 endfor
-fu! ScriptLocalDef(a,b)
-let c=a
-let d={
+fu! s:A(b,c)
+let d=a:b
+let l:e={
 arg2: 'dict key is not renamed.'
 }
-let e=[scriptLocalVal,0]
-for c in range(1,const1[1])
+let f=[s:f,0]
+for l:d in range(1,s:g[1])
 endfor
-const f=1
+const l:g=1
 enddef
-exe 'nnoremap <SID>ScriptLocalDef()'
-ec 'this is string, so be not renamed. scriptLocalVal'
-let Normal=0
+exe 'nnoremap <SID>A()'
+ec 'this is string, so be not renamed. s:scriptLocalVal'
+let s:ba=0
 echoe Normal
+let this_is_global_val_not_renamed=0
