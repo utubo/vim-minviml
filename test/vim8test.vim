@@ -21,43 +21,99 @@ finish
 " test data
 " -------------------------------------
 
+" ----------
+" SetupOption(opt)
+" TODO
+
+" ----------
+" SetupEscMark()
+let default_mark_is_used = 'ESCMARK'
+
+" ----------
+" JoinLines()
+let string_is_not_changed = 0
+echo
+  \ 'Join
+  \ line
+  \ string_is_not_changed
+  \'
+
+" EscapeStrings()
+let string_is_not_changed = 0
+echo "string_is_not_changed"
+
+" ----------
+" RemoveComments()
+" TODO
+" comment
+  echo trim
 echo 1 " remove comment
 echo \ " keep escaped space
 " skip empty lines
  	 	
 
-let s:string_is_not_changed = 0
-echo
-  \ 'Join
-  \ line
-  \ s:string_is_not_changed
-  \'
+" ----------
+" MinifyCommands()
+" TODO
 
-" TODO: see issue #15
+" ----------
+" ExpandVirticalBar()
+" TODO: see issue "15
 echo "split" | echo "line"
 
+" ----------
+" RemoveTailComments()
+" TODO: see issue "17
+echo "split" " remove comment
+inoremap <C-z> a  " remove comment
+
+" ----------
+" MinifyAllDefsLocal()
+function! s:ScriptLocalFunction(arg1, arg2)
+  let localVal = a:arg1
+  let l:localVal2 = {
+    arg2: 'dict key is not renamed.'
+  }
+  let localVal3 = [s:scriptLocalVal, 0]
+  for l:localVal in range(1, const1[1])
+  endfor
+  const l:localConst = 1
+endfunction
+
+" ----------
+" MinifyScriptLocal()
+" TODO
 let s:scriptLocalVal = 0
 const [s:const1, s:const2] = [1, s:scriptLocalVal]
 
 for [s:aaa, s:bbb]  in [[1, 2], [3, s:const1[0]]]
 endfor
 
-function! s:ScriptLocalDef(arg1, arg2)
-  let localVal = a:arg1
-  let l:localVal2 = {
-    arg2: 'dict key is not renamed.'
-  }
-  let localVal3 = [s:scriptLocalVal, 0]
-  for l:localVal in range(1, s:const1[1])
-  endfor
-  const l:localConst = 1
-enddef
+function! vim8test#This_is_expoeted(arg1)
+  let l:abc = a:arg1
+endfunction
 
-execute 'nnoremap <SID>ScriptLocalDef()'
-echo 'this is string, so be not renamed. s:scriptLocalVal'
+" ----------
+" RemoveVim8Spaces()
+let [s:vim8spaces, s:vim8spaces] = ['a' . 'b', 1 + 2 - 3 * 4 / 5]
 
-let s:Normal = 0
-echoe Normal " this is not renamed.
+" ----------
+" UnescapeStrings()
+" test in the test of EscapeString()
 
-let this_is_global_val_not_renamed = 0
+" ----------
+" MinifySIDDefs()
+function s:SidTestFunction()
+endfunction
+echo "rename <SID>SidTestDef() <SID>SidTestFunction()"
+echo "ignore <SID>SidTestDef <SID>SidTestFunction"
+echo "ignore SidTestDef() SidTestFunction()"
+
+" ----------
+" Others
+let Normal = 0
+echohl Normal " this is not renamed.
+
+let g:this_is_global_val_not_renamed = 0
+
 

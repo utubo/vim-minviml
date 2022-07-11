@@ -15,28 +15,43 @@ finally
 call delete(s:a)
 endtry
 finish
+let default_mark_is_used='ESCMARK'
+let string_is_not_changed=0
+ec 'Join line string_is_not_changed'
+let string_is_not_changed=0
+ec "string_is_not_changed"
+ec trim
 ec 1
 ec \ 
-let s:f=0
-ec 'Join line s:string_is_not_changed'
+" TODO: see issue "15
 ec "split"
 echo "line"
-let s:g=0
-const [s:h,s:i]=[1,s:g]
-for [s:j,s:ba] in [[1,2],[3,s:h[0]]]
-endfor
+" TODO: see issue "17
+ec "split"
+ino <C-z> a " remove comment
 fu! s:A(b,c)
 let d=a:b
 let l:e={
 arg2: 'dict key is not renamed.'
 }
-let f=[s:g,0]
-for l:d in range(1,s:h[1])
+let f=[s:f,0]
+for l:d in range(1,const1[1])
 endfor
 const l:g=1
-enddef
-exe 'nnoremap <SID>A()'
-ec 'this is string, so be not renamed. s:scriptLocalVal'
-let s:bb=0
-echoe Normal
-let this_is_global_val_not_renamed=0
+endf
+let s:f=0
+const [s:g,s:h]=[1,s:f]
+for [s:i,s:j] in [[1,2],[3,s:g[0]]]
+endfor
+fu! vim8test#This_is_expoeted(b)
+let l:c=a:b
+endf
+let [s:ba,s:ba]=['a'.'b',1+2-3*4/5]
+fu s:B()
+endf
+ec "rename <SID>SidTestDef() <SID>B()"
+ec "ignore <SID>SidTestDef <SID>SidTestFunction"
+ec "ignore SidTestDef() SidTestFunction()"
+let Normal=0
+echoh Normal " this is not renamed.
+let g:this_is_global_val_not_renamed=0
