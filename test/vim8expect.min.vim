@@ -25,8 +25,6 @@ ec 1
 ec \ 
 ec "split"
 ec "line"
-ec "split"
-ino <C-z> a " remove comment
 let a="keep 1" "this is comment"
 let a="keep 2"
 ec "keep 3"

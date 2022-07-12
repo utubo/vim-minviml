@@ -63,8 +63,6 @@ echo "split" | echo "line"
 
 # ----------
 # RemoveTailComments()
-echo "split" # remove comment
-inoremap <C-z> a  # remove comment
 var a="keep 1" #this is comment"
 var a="keep 2" #this is comment
 echo  "keep 3" " this is error 'Missing double quote'

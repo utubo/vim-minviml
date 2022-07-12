@@ -26,8 +26,6 @@ ec 1
 ec \ 
 ec "split"
 ec "line"
-ec "split"
-ino <C-z> a # remove comment
 var a="keep 1"
 var a="keep 2"
 ec "keep 3" " this is error 'Missing double quote'
