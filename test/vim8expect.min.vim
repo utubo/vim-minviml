@@ -31,15 +31,15 @@ let a="keep 1" "this is comment"
 let a="keep 2"
 ec "keep 3"
 ec "keep 4"
-ec "keep 5 | keep 6"
+ec "keep 5 | keep  6"
 ec "keep 7"
 ec "keep 8 | keep 9"
 ino A " keep 10
 ino A "
 ino A "
-let a='keep 11'
+let a='keep  11'
 ino A " \| keep 12" keep 13
-ino <expr> A " \| keep 14"
+ino <expr> A " \| keep  14"
 ino <expr> A "
 ino A "
 ec "keep 16"

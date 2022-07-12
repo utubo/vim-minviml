@@ -32,15 +32,15 @@ var a="keep 1"
 var a="keep 2"
 ec "keep 3" " this is error 'Missing double quote'
 ec "keep 4"
-ec "keep 5 | keep 6"
+ec "keep 5 | keep  6"
 ec "keep 7"
 ec "keep 8 | keep 9"
 ino A # keep 10
 ino A #
 ino A "
-var a='keep 11'
+var a='keep  11'
 ino A " \| keep 12" keep 13
-ino <expr> A " \| keep 14"
+ino <expr> A " \| keep  14"
 ino <expr> A "
 " keep 15 (missing double quote error)
 ino A "
