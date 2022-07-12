@@ -25,9 +25,31 @@ ec trim
 ec 1
 ec \ 
 ec "split"
-echo "line"
+ec "line"
 ec "split"
 ino <C-z> a # remove comment
+var a="keep 1"
+var a="keep 2"
+ec "keep 3" " this is error 'Missing double quote'
+ec "keep 4"
+ec "keep 5 | keep 6"
+ec "keep 7"
+ec "keep 8 | keep 9"
+ino A # keep 10
+ino A #
+ino A "
+var a='keep 11'
+ino A " \| keep 12" keep 13
+ino <expr> A " \| keep 14"
+ino <expr> A "
+" keep 15 (missing double quote error)
+ino A "
+ec "keep 16" " keep 17 (missing double quote error)
+ino A "
+var a='keep 18'
+ino A \"
+ino A "
+ino B " keep 19
 def A(a: dict<any>, b: number): string
 var c = a
 var d = {

@@ -23,12 +23,31 @@ ec "string_is_not_changed"
 ec trim
 ec 1
 ec \ 
-" TODO: see issue "15
 ec "split"
-echo "line"
-" TODO: see issue "17
+ec "line"
 ec "split"
 ino <C-z> a " remove comment
+let a="keep 1" "this is comment"
+let a="keep 2"
+ec "keep 3"
+ec "keep 4"
+ec "keep 5 | keep 6"
+ec "keep 7"
+ec "keep 8 | keep 9"
+ino A " keep 10
+ino A "
+ino A "
+let a='keep 11'
+ino A " \| keep 12" keep 13
+ino <expr> A " \| keep 14"
+ino <expr> A "
+ino A "
+ec "keep 16"
+ino A "
+let a='keep 18'
+ino A \"
+ino A "
+ino B " keep 19
 fu! s:A(b,c)
 let d=a:b
 let l:e={

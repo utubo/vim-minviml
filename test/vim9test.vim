@@ -45,7 +45,7 @@ var string_is_not_changed = 0
 echo "string_is_not_changed"
 
 # ----------
-# RemoveComments()
+# TrimAndJoinLines()
 # comment
   echo trim
 echo 1 # remove comment
@@ -59,14 +59,31 @@ echo \ # keep escaped space
 
 # ----------
 # ExpandVirticalBar()
-# TODO: see issue #15
 echo "split" | echo "line"
 
 # ----------
 # RemoveTailComments()
-# TODO: see issue #17
 echo "split" # remove comment
 inoremap <C-z> a  # remove comment
+var a="keep 1" #this is comment"
+var a="keep 2" #this is comment
+echo  "keep 3" " this is error 'Missing double quote'
+echo  "keep 4" | # this is comment
+echo  "keep 5 | keep  6"
+echo  "keep 7" | # this is comment | this is comment
+echo  "keep 8 | keep 9" | # this is comment " | this is comment
+inoremap A # keep 10
+inoremap A # | # this is comment
+inoremap A " | var a='keep  11' #this is comment
+inoremap A " \| keep 12" keep 13
+inoremap <expr> A " \| keep  14"
+inoremap <expr> A " | " keep 15 (missing double quote error)
+inoremap A " | echo "keep  16" " keep 17 (missing double quote error)
+inoremap A " | var a='keep 18'
+inoremap A \" | #var a='this is comment'
+inoremap A " | inoremap B " keep 19
+# "this line is comment"
+
 
 # ----------
 # MinifyAllDefsLocal()
