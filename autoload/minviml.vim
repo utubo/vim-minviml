@@ -128,7 +128,6 @@ def ExpandVirticalBar()
       add(newLines, line)
       continue
     endif
-    rep = substitute(rep, '\\\\', escB, 'g')
     rep = substitute(rep, '\\|', escV, 'g')
     rep = substitute(rep, '||', escOR, 'g')
     if line =~# KEYMAPCMD
@@ -139,6 +138,7 @@ def ExpandVirticalBar()
       endif
       rep = m[1] .. ' | ' .. EscapeStrings(m[2])
     endif
+    var isAutocmd = false
     for l in split(rep, '\s*|\s*')
       if isVim9 && l =~# lineCommentPat
         break
@@ -149,8 +149,12 @@ def ExpandVirticalBar()
       var r = l
       r = substitute(r, escOR, '||', 'g')
       r = substitute(r, escV, '\\|', 'g')
-      r = substitute(r, escB, '\', 'g')
-      add(newLines, r)
+      if isAutocmd
+        newLines[-1] ..= ' | ' .. r
+      else
+        add(newLines, r)
+        isAutocmd = r =~# '^\(autocmd\|au\|command!\?\|com!\?\)\? '
+      endif
     endfor
   endfor
   allLines = newLines
@@ -164,16 +168,25 @@ def TrimAndJoinLines()
     if len(rep) ==# 0
       continue
     endif
-    if rep =~# '^set\s\+'
-      rep = substitute(rep, '^set\s\+', 'set ', '')
-    else
-      rep = substitute(rep, '\s\+', ' ', 'g')
-    endif
     if rep =~# '^\\'
       newLines[-1] ..= rep[1 : ]
     else
       add(newLines, rep)
     endif
+  endfor
+  allLines = newLines
+enddef
+
+def MinifySpaces()
+  var newLines = []
+  for line in allLines
+    var rep = line
+    if rep =~# '^set\s\+'
+      rep = substitute(rep, '^set\s\+', 'set ', '')
+    else
+      rep = substitute(rep, '\s\+', ' ', 'g')
+    endif
+    add(newLines, rep)
   endfor
   allLines = newLines
 enddef
@@ -480,6 +493,7 @@ export def Minify(src: string = '%', dest: string = '', opt: dict<any> = {})
   SetupEscMark()
   TrimAndJoinLines()
   EscapeAllStrings()
+  MinifySpaces()
   ExpandVirticalBar()
   MinifyCommands()
   RemoveTailComments()
