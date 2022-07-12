@@ -2,6 +2,7 @@ vim9script
 
 var allLines = ['']
 var isVim9 = false
+var lineCommentPat = '^\s*"'
 
 # -----------------
 # Options
@@ -34,20 +35,30 @@ def EscMark(index: any = ''): string
 enddef
 
 const ESC_STR_SUB = '\=EscMark(len(add(escapedStrs, submatch(0))) - 1)'
-def EscapeStrings()
+def EscapeStrings(line: string): string
+  return substitute(line, '''\([^'']\|''''\)*''\|"\([^"\\]\|\\.\)*"', ESC_STR_SUB, 'g')
+enddef
+
+def EscapeAllStrings()
   escapedStrs = []
   var newLines = []
   for line in allLines
-    add(newLines, substitute(line, '''\([^'']\|''''\)*''\|"\([^"\\]\|\\.\)*"', ESC_STR_SUB, 'g'))
+    if line !~# lineCommentPat
+      add(newLines, EscapeStrings(line))
+    endif
   endfor
   allLines = newLines
 enddef
 
-def UnescapeStrings()
+const ESC_STR_PAT = EscMark('\(\d\+\)')
+def UnescapeStrings(line: string): string
+  return substitute(line, ESC_STR_PAT, (m) => escapedStrs[str2nr(m[1])], 'g')
+enddef
+
+def UnescapeAllStrings()
   var newLines = []
-  const esc = EscMark('\(\d\+\)')
   for line in allLines
-    add(newLines, substitute(line, esc, (m) => escapedStrs[str2nr(m[1])], 'g'))
+    add(newLines, UnescapeStrings(line))
   endfor
   allLines = newLines
 enddef
@@ -63,42 +74,45 @@ enddef
 
 # -----------------
 # Minify
-const NO_MINIFY_COMMANDS = [
-  'nn', # nnoremap
-  'vn', # vnoremap
-  'xn', # xnoremap
-  'snor', # snoremap
-  'ono', # onoremap
-  'ino', # inoremap
-  'ln', # lnoremap
-  'cno', # cnoremap
-  'tno', # tnoremap
-  'no', # noremap
-  'nm', # nmap
-  'vm', # vmap
-  'xm', # xmap
-  'om', # omap
-  'im', # imap
-  'lm', # lmap
-  'cm', # cmap
-  'tma', # tmap
+const KEYMAPCMD_DICT = {
+  nnoremap: 'nn',
+  vnoremap: 'vn',
+  xnoremap: 'xn',
+  snoremap: 'snor',
+  onoremap: 'ono',
+  inoremap: 'ino',
+  lnoremap: 'ln',
+  cnoremap: 'cno',
+  tnoremap: 'tno',
+  noremap: 'no',
+  cunmap: 'cu',
+  iunmap: 'iu',
+  lunmap: 'lu',
+  nunmap: 'nu',
+  ounmap: 'ou',
+  xunmap: 'xu',
+  vunmap: 'vu',
+  sunmap: 'sunm',
+  unmap: 'unm',
+  nmap: 'nm',
+  vmap: 'vm',
+  xmap: 'xm',
+  omap: 'om',
+  imap: 'im',
+  lmap: 'lm',
+  cmap: 'cm',
+  tmap: 'tma',
+}
+const KEYMAPCMD = printf('^\(%s\|%s\)!\?\s', join(keys(KEYMAPCMD_DICT), '\|'), join(values(KEYMAPCMD_DICT), '\|'))
+
+var NO_MINIFY_COMMANDS = [
   'echoh', # echohl
   'com', # command
   'au', # autocmd
 ]
-const NO_MINIFY = '^\(' .. join(NO_MINIFY_COMMANDS, '\|') .. '\)!\?\s'
-
-def JoinLines()
-  var newLines = []
-  for line in allLines
-    if line =~# '^\s*\\'
-      newLines[-1] ..= substitute(line, '^\s*\\', '', '')
-    else
-      add(newLines, line)
-    endif
-  endfor
-  allLines = newLines
-enddef
+extend(NO_MINIFY_COMMANDS, keys(KEYMAPCMD_DICT))
+extend(NO_MINIFY_COMMANDS, values(KEYMAPCMD_DICT))
+const NO_MINIFY = printf('^\(%s\)!\?\s', join(NO_MINIFY_COMMANDS, '\|'))
 
 def ExpandVirticalBar()
   var newLines = []
@@ -106,58 +120,71 @@ def ExpandVirticalBar()
   const escV = EscMark('V')
   const escOR = EscMark('OR')
   for line in allLines
-    if match(line, '|') !=# -1 && line !~# NO_MINIFY
-      var rep = line
-      rep = substitute(rep, '\\\\', escB, 'g')
-      rep = substitute(rep, '\\|', escV, 'g')
-      rep = substitute(rep, '||', escOR, 'g')
-      for l in split(rep, '\s*|\s*')
-        var r = l
-        r = substitute(r, escOR, '||', 'g')
-        r = substitute(r, escV, '\\|', 'g')
-        r = substitute(r, escB, '\', 'g')
-        add(newLines, r)
-      endfor
-    else
-      add(newLines, line)
+    var rep = line
+    if line =~# KEYMAPCMD
+      rep = UnescapeStrings(rep)
     endif
+    if match(rep, '|') ==# -1
+      add(newLines, line)
+      continue
+    endif
+    rep = substitute(rep, '\\\\', escB, 'g')
+    rep = substitute(rep, '\\|', escV, 'g')
+    rep = substitute(rep, '||', escOR, 'g')
+    if line =~# KEYMAPCMD
+      var m = matchlist(rep, '^\(.*\)|\(.*\)')
+      if len(m) ==# 0
+        add(newLines, line)
+        continue
+      endif
+      rep = m[1] .. ' | ' .. EscapeStrings(m[2])
+    endif
+    for l in split(rep, '\s*|\s*')
+      if isVim9 && l =~# lineCommentPat
+        break
+      endif
+      if !isVim9 && UnescapeStrings(l) =~# lineCommentPat
+        break
+      endif
+      var r = l
+      r = substitute(r, escOR, '||', 'g')
+      r = substitute(r, escV, '\\|', 'g')
+      r = substitute(r, escB, '\', 'g')
+      add(newLines, r)
+    endfor
   endfor
   allLines = newLines
 enddef
 
-def RemoveComments()
+def TrimAndJoinLines()
   var newLines = []
   for line in allLines
     var rep = line
     rep = substitute(rep, '^\s*', '', '')
-    if isVim9
-      rep = substitute(rep, '^#.*', '', '')
-    else
-      rep = substitute(rep, '^".*', '', '')
+    if len(rep) ==# 0
+      continue
     endif
     if rep =~# '^set\s\+'
       rep = substitute(rep, '^set\s\+', 'set ', '')
     else
       rep = substitute(rep, '\s\+', ' ', 'g')
     endif
-    if len(rep) ==# 0
-      continue
+    if rep =~# '^\\'
+      newLines[-1] ..= rep[1 : ]
+    else
+      add(newLines, rep)
     endif
-    add(newLines, rep)
   endfor
   allLines = newLines
 enddef
 
 def RemoveTailComments()
   var newLines = []
+  var tailCommentPat = isVim9 ? '\s#.*$' : '\s".*$'
   for line in allLines
     var rep = line
     if rep !~# NO_MINIFY
-      if isVim9
-        rep = substitute(rep, '\s#.*$', ' ', '')
-      else
-        rep = substitute(rep, '\s"[^"]*$', ' ', '')
-      endif
+      rep = substitute(rep, tailCommentPat, ' ', '')
     endif
     rep = substitute(rep, '\(\\\s\)\?\s*$', '\1', '')
     if len(rep) !=# 0
@@ -169,7 +196,7 @@ enddef
 
 def MinifyCommands()
   # TODO: add commands
-  const COMMAND_DICT = {
+  var COMMAND_DICT = {
     scriptencoding: 'scripte',
     endfunction: 'endf',
     nohlsearch: 'noh',
@@ -177,47 +204,21 @@ def MinifyCommands()
     function: 'fu',
     setlocal: 'setl',
     tabclose: 'tabc',
-    nnoremap: 'nn',
-    vnoremap: 'vn',
-    xnoremap: 'xn',
-    snoremap: 'snor',
-    onoremap: 'ono',
-    inoremap: 'ino',
-    lnoremap: 'ln',
-    cnoremap: 'cno',
-    tnoremap: 'tno',
-    noremap: 'no',
     augroup: 'aug',
     autocmd: 'au',
     command: 'com',
     echomsg: 'echom',
     execute: 'exe',
     tabnext: 'tabn',
-    cunmap: 'cu',
-    iunmap: 'iu',
-    lunmap: 'lu',
-    nunmap: 'nu',
-    ounmap: 'ou',
-    xunmap: 'xu',
-    vunmap: 'vu',
-    sunmap: 'sunm',
     echohl: 'echoh',
     #endfor: 'endfo',
     #return: 'retu',
     source: 'so',
     #const: 'cons',
-    unmap: 'unm',
     while: 'wh',
     echo: 'ec',
-    nmap: 'nm',
-    vmap: 'vm',
-    xmap: 'xm',
-    omap: 'om',
-    imap: 'im',
-    lmap: 'lm',
-    cmap: 'cm',
-    tmap: 'tma',
   }
+  extend(COMMAND_DICT, KEYMAPCMD_DICT)
   # TODO: add settings
   const SETTING_DICT = {
       fileencodings: 'fencs',
@@ -403,7 +404,7 @@ def MinifyScriptLocal()
     var sval9Names = []
     var isDef = false
     for line in allLines
-      if line =~# '^\((export )\?def\|fu\)!\? '
+      if line =~# '^\(def\|fu\)!\? '
         isDef = true
       elseif line =~# '^\(enddef\|endf\)$'
         isDef = false
@@ -474,18 +475,18 @@ export def Minify(src: string = '%', dest: string = '', opt: dict<any> = {})
   redraw
   allLines = readfile(eSrc)
   isVim9 = allLines[0] ==# 'vim9script'
+  lineCommentPat = isVim9 ? '^\s*#' : '^\s*"'
   SetupOption(opt)
   SetupEscMark()
-  JoinLines()
-  EscapeStrings()
-  RemoveComments()
-  MinifyCommands()
+  TrimAndJoinLines()
+  EscapeAllStrings()
   ExpandVirticalBar()
+  MinifyCommands()
   RemoveTailComments()
   MinifyAllDefsLocal()
   MinifyScriptLocal()
   RemoveVim8Spaces()
-  UnescapeStrings()
+  UnescapeAllStrings()
   MinifySIDDefs()
   writefile(allLines, eDest)
   redraw
