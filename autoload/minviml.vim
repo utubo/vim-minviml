@@ -356,7 +356,9 @@ def ReplaceNames(lines: list<string>, oldToNew: dict<any>, scope: list<string> =
   for line in lines
     var rep = line
     if line !~# GLOBALCMD
-      rep = substitute(rep, dictKeys, ESC_STR_SUB, 'g')
+      if isVim9
+        rep = substitute(rep, dictKeys, ESC_STR_SUB, 'g')
+      endif
       rep = substitute(rep, pat, (m) => oldToNew[m[2]] .. m[3], 'g')
     endif
     add(newLines, rep)
