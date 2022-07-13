@@ -105,13 +105,13 @@ const KEYMAPCMD_DICT = {
 }
 const KEYMAPCMD = printf('^\(%s\|%s\)!\?\s', join(keys(KEYMAPCMD_DICT), '\|'), join(values(KEYMAPCMD_DICT), '\|'))
 
-var GLOBALCMD_COMMANDS = [
+var GLOBALCMD_LIST = [
+  'au',  # autocmd
   'com', # command
-  'au', # autocmd
 ]
-extend(GLOBALCMD_COMMANDS, keys(KEYMAPCMD_DICT))
-extend(GLOBALCMD_COMMANDS, values(KEYMAPCMD_DICT))
-const GLOBALCMD = printf('^\(%s\)!\?\s', join(GLOBALCMD_COMMANDS, '\|'))
+extend(GLOBALCMD_LIST, keys(KEYMAPCMD_DICT))
+extend(GLOBALCMD_LIST, values(KEYMAPCMD_DICT))
+const GLOBALCMD = printf('^\(%s\)!\?\s', join(GLOBALCMD_LIST, '\|'))
 
 def SplitWithVBar()
   const BAR = EscMark('V') # escape `\|`
