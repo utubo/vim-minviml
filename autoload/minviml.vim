@@ -105,55 +105,58 @@ const KEYMAPCMD_DICT = {
 }
 const KEYMAPCMD = printf('^\(%s\|%s\)!\?\s', join(keys(KEYMAPCMD_DICT), '\|'), join(values(KEYMAPCMD_DICT), '\|'))
 
-var NO_MINIFY_COMMANDS = [
-  'echoh', # echohl
+var GLOBALCMD_COMMANDS = [
   'com', # command
   'au', # autocmd
 ]
-extend(NO_MINIFY_COMMANDS, keys(KEYMAPCMD_DICT))
-extend(NO_MINIFY_COMMANDS, values(KEYMAPCMD_DICT))
-const NO_MINIFY = printf('^\(%s\)!\?\s', join(NO_MINIFY_COMMANDS, '\|'))
+extend(GLOBALCMD_COMMANDS, keys(KEYMAPCMD_DICT))
+extend(GLOBALCMD_COMMANDS, values(KEYMAPCMD_DICT))
+const GLOBALCMD = printf('^\(%s\)!\?\s', join(GLOBALCMD_COMMANDS, '\|'))
 
-def ExpandVirticalBar()
+def SplitWithVBar()
+  const BAR = EscMark('V') # escape `\|`
+  const OR = EscMark('OR') # escape `||`
   var newLines = []
-  const escB = EscMark('B')
-  const escV = EscMark('V')
-  const escOR = EscMark('OR')
   for line in allLines
     var rep = line
     if line =~# KEYMAPCMD
+      # for `nnoremap A " | nnoreap B "`
       rep = UnescapeStrings(rep)
     endif
     if match(rep, '|') ==# -1
       add(newLines, line)
       continue
     endif
-    rep = substitute(rep, '\\|', escV, 'g')
-    rep = substitute(rep, '||', escOR, 'g')
+    rep = substitute(rep, '\\|', BAR, 'g')
+    rep = substitute(rep, '||', OR, 'g')
     if line =~# KEYMAPCMD
       var m = matchlist(rep, '^\(.*\)|\(.*\)')
-      if len(m) ==# 0
+      if empty(m)
         add(newLines, line)
         continue
       endif
       rep = m[1] .. ' | ' .. EscapeStrings(m[2])
     endif
+    # main
     var isAutocmd = false
     for l in split(rep, '\s*|\s*')
-      if isVim9 && l =~# lineCommentPat
-        break
-      endif
-      if !isVim9 && UnescapeStrings(l) =~# lineCommentPat
-        break
+      if isVim9
+        if l =~# lineCommentPat
+          break
+        endif
+      else
+        if UnescapeStrings(l) =~# lineCommentPat
+          break
+        endif
       endif
       var r = l
-      r = substitute(r, escOR, '||', 'g')
-      r = substitute(r, escV, '\\|', 'g')
+      r = substitute(r, OR, '||', 'g')
+      r = substitute(r, BAR, '\\|', 'g')
       if isAutocmd
         newLines[-1] ..= ' | ' .. r
       else
         add(newLines, r)
-        isAutocmd = r =~# '^\(autocmd\|au\|command!\?\|com!\?\)\? '
+        isAutocmd = r =~# '^\(autocmd\|au\|command!\?\|com!\?\) '
       endif
     endfor
   endfor
@@ -165,7 +168,7 @@ def TrimAndJoinLines()
   for line in allLines
     var rep = line
     rep = substitute(rep, '^\s*', '', '')
-    if len(rep) ==# 0
+    if empty(rep)
       continue
     endif
     if rep =~# '^\\'
@@ -181,26 +184,31 @@ def MinifySpaces()
   var newLines = []
   for line in allLines
     var rep = line
+    # Minify spaces between words
     if rep =~# '^set\s\+'
       rep = substitute(rep, '^set\s\+', 'set ', '')
     else
       rep = substitute(rep, '\s\+', ' ', 'g')
+    endif
+    # Minify spaces for vim8script
+    if !isVim9 && line !~# GLOBALCMD
+      rep = substitute(rep, ' *\([.,=+*/-]\) *', '\1', 'g')
     endif
     add(newLines, rep)
   endfor
   allLines = newLines
 enddef
 
-def RemoveTailComments()
+def TrimTailComments()
   var newLines = []
   var tailCommentPat = isVim9 ? '\s#.*$' : '\s".*$'
   for line in allLines
     var rep = line
-    if rep !~# NO_MINIFY
+    if rep !~# GLOBALCMD
       rep = substitute(rep, tailCommentPat, ' ', '')
     endif
     rep = substitute(rep, '\(\\\s\)\?\s*$', '\1', '')
-    if len(rep) !=# 0
+    if !empty(rep)
       add(newLines, rep)
     endif
   endfor
@@ -279,6 +287,12 @@ def MinifyCommands()
     )
     rep = substitute(
       rep,
+      '^\(sil! \)\?echoh \S\+',
+      ESC_STR_SUB,
+      'g'
+    )
+    rep = substitute(
+      rep,
       '&\(' .. SETTING_PAT .. '\)\>',
       (m) => '&' .. SETTING_DICT[m[1]],
       'g'
@@ -292,7 +306,7 @@ def ScanNames(names: list<any>, lines: list<string>, pat1: list<string>, pat2: s
   for line in lines
     for pat in pat1
       var m = matchlist(line, pat)
-      if len(m) !=# 0
+      if !empty(m)
         for n in Scan(m[1], pat2, 1)
           if index(names, n) ==# -1
             add(names, n)
@@ -331,19 +345,19 @@ def CreateNewNamesMap(lines: list<string>, names: list<string>, opt: dict<any> =
 enddef
 
 def ReplaceNames(lines: list<string>, oldToNew: dict<any>, scope: list<string> = []): list<string>
-  if len(oldToNew) ==# 0
+  if empty(oldToNew)
     return lines
   endif
   const scopePat = '\(' .. join(extend(['^', '[^a-zA-Z_:$]'], scope), '\|') .. '\)'
   const namePat = '\(' .. join(keys(oldToNew), '\|') .. '\)'
   const dictKeys = '\<' .. namePat .. ' *:'
-  const pat = scopePat .. namePat .. '\([^a-zA-Z0-9_(:]\|$\)'
+  const pat = scopePat .. '\@<=' .. namePat .. '\([^a-zA-Z0-9_(:]\|$\)'
   var newLines = []
   for line in lines
     var rep = line
-    if line !~# NO_MINIFY
+    if line !~# GLOBALCMD
       rep = substitute(rep, dictKeys, ESC_STR_SUB, 'g')
-      rep = substitute(rep, pat, (m) => m[1] .. oldToNew[m[2]] .. m[3], 'g')
+      rep = substitute(rep, pat, (m) => oldToNew[m[2]] .. m[3], 'g')
     endif
     add(newLines, rep)
   endfor
@@ -402,7 +416,7 @@ def MinifyScriptLocal()
   endfor
   scriptLocalDefs = CreateNewNamesMap(allLines, defNames, { offset: 'A', format: '%s(' })
 
-  if len(scriptLocalDefs) > 0
+  if !empty(scriptLocalDefs)
     var pat = printf('[a-zA-Z0-9_:#]\@<!\(s:\)\?\(%s\)\@>(', join(keys(scriptLocalDefs), '\|'))
     var newLines = []
     for line in allLines
@@ -438,7 +452,7 @@ def MinifyScriptLocal()
 enddef
 
 def MinifySIDDefs()
-  if len(scriptLocalDefs) ==# 0
+  if empty(scriptLocalDefs)
     return
   endif
   var pat = '<SID>\(' .. join(keys(scriptLocalDefs), '\|') .. '\)\@>('
@@ -446,21 +460,6 @@ def MinifySIDDefs()
   for line in allLines
     var rep = line
     rep = substitute(rep, pat, (m) => '<SID>' .. scriptLocalDefs[m[1]], 'g')
-    add(newLines, rep)
-  endfor
-  allLines = newLines
-enddef
-
-def RemoveVim8Spaces()
-  if isVim9
-    return
-  endif
-  var newLines = []
-  for line in allLines
-    var rep = line
-    if line !~# NO_MINIFY
-      rep = substitute(rep, ' *\([.,=+*/-]\) *', '\1', 'g')
-    endif
     add(newLines, rep)
   endfor
   allLines = newLines
@@ -494,12 +493,11 @@ export def Minify(src: string = '%', dest: string = '', opt: dict<any> = {})
   TrimAndJoinLines()
   EscapeAllStrings()
   MinifySpaces()
-  ExpandVirticalBar()
+  SplitWithVBar()
   MinifyCommands()
-  RemoveTailComments()
+  TrimTailComments()
   MinifyAllDefsLocal()
   MinifyScriptLocal()
-  RemoveVim8Spaces()
   UnescapeAllStrings()
   MinifySIDDefs()
   writefile(allLines, eDest)
