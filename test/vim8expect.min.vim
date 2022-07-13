@@ -53,13 +53,13 @@ arg2: 'dict key is not renamed.'
 }
 let f=[s:f,0]
 for l:d in range(1,const1[1])
-endfor
-const l:g=1
+endfo
+cons l:g=1
 endf
 let s:f=0
-const [s:g,s:h]=[1,s:f]
+cons [s:g,s:h]=[1,s:f]
 for [s:i,s:j] in [[1,2],[3,s:g[0]]]
-endfor
+endfo
 fu! vim8test#This_is_exported(b)
 let l:c=a:b
 endf
@@ -70,5 +70,5 @@ ec "rename <SID>SidTestDef() <SID>B()"
 ec "ignore <SID>SidTestDef <SID>SidTestFunction"
 ec "ignore SidTestDef() SidTestFunction()"
 let Normal=0
-echoh Normal " this is not renamed.
+echoh Normal
 let g:this_is_global_val_not_renamed=0

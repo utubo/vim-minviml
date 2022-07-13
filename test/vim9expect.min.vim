@@ -85,5 +85,5 @@ ec "rename <SID>C() <SID>D()"
 ec "ignore <SID>SidTestDef <SID>SidTestFunction"
 ec "ignore SidTestDef() SidTestFunction()"
 var ln = 0
-echoh Normal # this is not renamed.
+echoh Normal
 g:this_is_global_val_not_renamed = 0

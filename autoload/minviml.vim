@@ -221,7 +221,6 @@ def MinifyCommands()
     scriptencoding: 'scripte',
     endfunction: 'endf',
     nohlsearch: 'noh',
-    endwhile: 'endw',
     function: 'fu',
     setlocal: 'setl',
     tabclose: 'tabc',
@@ -232,13 +231,18 @@ def MinifyCommands()
     execute: 'exe',
     tabnext: 'tabn',
     echohl: 'echoh',
-    #endfor: 'endfo',
-    #return: 'retu',
     source: 'so',
-    #const: 'cons',
-    while: 'wh',
     echo: 'ec',
   }
+  if !isVim9
+    extend(COMMAND_DICT, {
+      endwhile: 'endw',
+      endfor: 'endfo',
+      return: 'retu',
+      const: 'cons',
+      while: 'wh',
+    })
+  endif
   extend(COMMAND_DICT, KEYMAPCMD_DICT)
   # TODO: add settings
   const SETTING_DICT = {
@@ -377,7 +381,7 @@ def MinifyDefLocal(lines: list<string>): list<string>
     extend(srcVals, Scan(matchstr(lines[0], '([^)]*)'), '\([a-zA-Z_][a-zA-Z0-9_]\+\)', 1))
   endif
   # l:val
-  ScanNames(srcVals, lines, ['^\%(var\|const\|final\|let\)\( [^=]\+\)', '^for\( [^=]\+\) in '], '\%(a:\|[ ,]\|[ ,]l:\)\([a-zA-Z_][a-zA-Z0-9_]\+\)')
+  ScanNames(srcVals, lines, ['^\%(var\|const\?\|final\|let\)\( [^=]\+\)', '^for\( [^=]\+\) in '], '\%(a:\|[ ,]\|[ ,]l:\)\([a-zA-Z_][a-zA-Z0-9_]\+\)')
   # minify
   var newVals = CreateNewNamesMap(lines, srcVals)
   var newLines = ReplaceNames(lines, newVals, ['l:', 'a:'])
@@ -447,7 +451,7 @@ def MinifyScriptLocal()
   else
     # s:val
     var svalNames = []
-    ScanNames(svalNames, allLines, ['^\%(let\|const\) \([^=]\+\)', '^for \([^=]\+\) in '], '\(s:[a-zA-Z_][a-zA-Z0-9_]\+\)')
+    ScanNames(svalNames, allLines, ['^\%(let\|const\?\) \([^=]\+\)', '^for \([^=]\+\) in '], '\(s:[a-zA-Z_][a-zA-Z0-9_]\+\)')
     var svals = CreateNewNamesMap(allLines, svalNames, { format: 's:%s' })
     allLines = ReplaceNames(allLines, svals, ['s:'])
   endif
