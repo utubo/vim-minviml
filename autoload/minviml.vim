@@ -350,7 +350,7 @@ def ReplaceNames(lines: list<string>, oldToNew: dict<any>, scope: list<string> =
   endif
   const scopePat = '\(' .. join(extend(['^', '[^a-zA-Z_:$]'], scope), '\|') .. '\)'
   const namePat = '\(' .. join(keys(oldToNew), '\|') .. '\)'
-  const dictKeys = '\<' .. namePat .. ' *:'
+  const dictKeys = '\<' .. namePat .. ':'
   const pat = scopePat .. '\@<=' .. namePat .. '\([^a-zA-Z0-9_(:]\|$\)'
   var newLines = []
   for line in lines
