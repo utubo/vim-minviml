@@ -54,7 +54,10 @@ arg2: 'dict key is not renamed.'
 let f=[s:f,0]
 for l:d in range(1,const1[1])
 endfo
-cons l:g=1
+let [g,h]=[1,2]
+for [l:i,j] in range(1,const1[1])
+endfo
+cons l:ba=1
 endf
 let s:f=0
 cons [s:g,s:h]=[1,s:f]

@@ -90,6 +90,9 @@ function! s:ScriptLocalFunction(arg1, arg2)
   let localVal3 = [s:scriptLocalVal, 0]
   for l:localVal in range(1, const1[1])
   endfor
+  let [val1, val2] = [1, 2]
+  for [l:loop1, loop2] in range(1, const1[1])
+  endfor
   const l:localConst = 1
 endfunction
 

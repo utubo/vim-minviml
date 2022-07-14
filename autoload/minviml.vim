@@ -381,7 +381,7 @@ def MinifyDefLocal(lines: list<string>): list<string>
     extend(srcVals, Scan(matchstr(lines[0], '([^)]*)'), '\([a-zA-Z_][a-zA-Z0-9_]\+\)', 1))
   endif
   # l:val
-  ScanNames(srcVals, lines, ['^\%(var\|const\?\|final\|let\)\( [^=]\+\)', '^for\( [^=]\+\) in '], '\%(a:\|[ ,]\|[ ,]l:\)\([a-zA-Z_][a-zA-Z0-9_]\+\)')
+  ScanNames(srcVals, lines, ['^\%(var\|const\?\|final\|let\)\( [^=]\+\)', '^for\( [^=]\+\) in '], '\%(a:\|[ ,[]\|[ ,[]l:\)\([a-zA-Z_][a-zA-Z0-9_]\+\)')
   # minify
   var newVals = CreateNewNamesMap(lines, srcVals)
   var newLines = ReplaceNames(lines, newVals, ['l:', 'a:'])

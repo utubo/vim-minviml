@@ -93,6 +93,9 @@ def ScriptLocalDef(arg1: dict<any>, arg2: number): string
   var localVal3 = [scriptLocalVal, 0]
   for localVal in range(1, const1[1])
   endfor
+  var [val1, val2] = [1, 2]
+  for [l:loop1, loop2] in range(1, const1[1])
+  endfor
   const localConst = 1
   final localFinal = '2'
 enddef

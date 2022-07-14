@@ -56,8 +56,11 @@ arg2: 'dict key is not renamed.'
 var e = [s, 0]
 for c in range(1, t[1])
 endfor
-const f = 1
-final g = '2'
+var [f, g] = [1, 2]
+for [l:h, i] in range(1, t[1])
+endfor
+const j = 1
+final ba = '2'
 enddef
 fu! B(b, c)
 let d = a:b
