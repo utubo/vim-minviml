@@ -37,6 +37,8 @@ ino A "|let a='keep 18'
 ino A \"|ino A "|ino B " keep 19
 let a=1|ino A "|ino B " keep 20
 let b=2|au VimEnter * inoermap A " | inoremap B "
+set set1=setvalue1
+set set2=" comment, so this line is error
 fu! s:A(b,c)
 let d=a:b
 let l:e={
@@ -59,6 +61,7 @@ let l:c=a:b
 endf
 let minifyspaces='12345'|let minifyspaces2=1
 nn dont minify    keymap
+set set2=#  dont minify
 let [s:ba,s:ba]=['a'.'b',1+2-3*4/5]
 fu s:B()
 endf

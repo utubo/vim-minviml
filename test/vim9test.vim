@@ -62,7 +62,7 @@ echo \ # keep escaped space
 echo "split" | echo "line"
 
 # ----------
-# RemoveTailComments()
+# TrimTailComments()
 var a="keep 1" #this is comment"
 var a="keep 2" #this is comment
 echo  "keep 3" " this is error 'Missing double quote'
@@ -82,6 +82,8 @@ inoremap A \" | #var a='this is comment'
 inoremap A " | inoremap B " keep 19
 let a=1 | inoremap A " | inoremap B " keep 20
 let b=2 | autocmd VimEnter * inoermap A " | inoremap B "
+set set1=setvalue1 # comment
+set set2=# not comment
 # "this line is comment"
 
 

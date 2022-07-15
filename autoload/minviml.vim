@@ -232,10 +232,13 @@ def TrimTailComments()
   var newLines = []
   var tailCommentPat = isVim9 ? '\s#.*$' : '\s".*$'
   for line in allLines
-    var rep = line
-    var m = matchlist(rep, vbarPat)
-    rep = m[1]
-    if rep !~# GLOBALCMD
+    var m = matchlist(line, vbarPat)
+    var rep = m[1]
+    if rep =~# '^set \|setl '
+      echom rep
+      rep = substitute(rep, tailCommentPat, '', '')
+      echom rep
+    elseif rep !~# GLOBALCMD
       rep = substitute(rep, tailCommentPat, ' ', '')
     endif
     rep = substitute(rep, '\(\\\s\)\?\s*$', '\1', '')

@@ -60,7 +60,7 @@ echo \ " keep escaped space
 echo "split" | echo "line"
 
 " ----------
-" RemoveTailComments()
+" TrimTailComments()
 let a="keep 1" "this is comment"
 let a="keep 2" "this is comment
 echo  "keep 3" " this is error 'Missing double quote'
@@ -80,6 +80,8 @@ inoremap A \" | "let a='this is comment'
 inoremap A " | inoremap B " keep 19
 let a=1 | inoremap A " | inoremap B " keep 20
 let b=2 | autocmd VimEnter * inoermap A " | inoremap B "
+set set1=setvalue1 " comment
+set set2=" comment, so this line is error
 " "this line is comment"
 
 " ----------
@@ -114,6 +116,7 @@ endfunction
 " MinifySpaces()
 let minifyspaces     =       '12345' |     let minifyspaces2   =  1
 nnoremap dont minify    keymap
+set set2=#  dont minify
 
 " ----------
 " MinifyVim8Spaces()
