@@ -234,11 +234,7 @@ def TrimTailComments()
   for line in allLines
     var m = matchlist(line, vbarPat)
     var rep = m[1]
-    if rep =~# '^set \|setl '
-      echom rep
-      rep = substitute(rep, tailCommentPat, '', '')
-      echom rep
-    elseif rep !~# GLOBALCMD
+    if rep !~# GLOBALCMD || rep =~# '^set \|setl '
       rep = substitute(rep, tailCommentPat, ' ', '')
     endif
     rep = substitute(rep, '\(\\\s\)\?\s*$', '\1', '')
