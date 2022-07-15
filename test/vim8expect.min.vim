@@ -61,7 +61,6 @@ let l:c=a:b
 endf
 let minifyspaces='12345'|let minifyspaces2=1
 nn dont minify    keymap
-set set2=#  dont minify
 let [s:ba,s:ba]=['a'.'b',1+2-3*4/5]
 fu s:B()
 endf

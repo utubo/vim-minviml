@@ -204,7 +204,7 @@ enddef
 def MinifySpaces()
   var newLines = []
   for line in allLines
-    if line =~# GLOBALCMD
+    if line =~# KEYMAPCMD
       add(newLines, substitute(line, GLOBALCMD, '\1 ', ''))
     else
       add(newLines, substitute(line, '\s\+', ' ', 'g'))

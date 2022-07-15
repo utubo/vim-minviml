@@ -116,7 +116,6 @@ endfunction
 " MinifySpaces()
 let minifyspaces     =       '12345' |     let minifyspaces2   =  1
 nnoremap dont minify    keymap
-set set2=#  dont minify
 
 " ----------
 " MinifyVim8Spaces()
