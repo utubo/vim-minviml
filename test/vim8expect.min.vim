@@ -23,29 +23,20 @@ ec "string_is_not_changed"
 ec trim
 ec 1
 ec \ 
-ec "split"
-ec "line"
+ec "split"|ec "line"
 let a="keep 1" "this is comment"
 let a="keep 2"
 ec "keep 3"
-ec "keep 4"
-ec "keep 5 | keep  6"
-ec "keep 7"
-ec "keep 8 | keep 9"
-ino A " keep 10
-ino A "
-ino A "
-let a='keep  11'
+ec "keep 4"|ec "keep 5 | keep  6"
+ec "keep 7"|ec "keep 8 | keep 9"|ino A " keep 10
+ino A "|ino A "|let a='keep  11'
 ino A " \| keep 12" keep 13
 ino <expr> A " \| keep  14"
-ino <expr> A "
-ino A "
-ec "keep 16"
-ino A "
-let a='keep 18'
-ino A \"
-ino A "
-ino B " keep 19
+ino <expr> A "|ino A "|ec "keep    16"
+ino A "|let a='keep 18'
+ino A \"|ino A "|ino B " keep 19
+let a=1|ino A "|ino B " keep 20
+let b=2|au VimEnter * inoermap A " | inoremap B "
 fu! s:A(b,c)
 let d=a:b
 let l:e={
@@ -66,6 +57,8 @@ endfo
 fu! vim8test#This_is_exported(b)
 let l:c=a:b
 endf
+let minifyspaces='12345'|let minifyspaces2=1
+nn dont minify    keymap
 let [s:ba,s:ba]=['a'.'b',1+2-3*4/5]
 fu s:B()
 endf

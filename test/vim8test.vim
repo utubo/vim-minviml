@@ -74,10 +74,12 @@ inoremap A " | let a='keep  11' "this is comment
 inoremap A " \| keep 12" keep 13
 inoremap <expr> A " \| keep  14"
 inoremap <expr> A " | " keep 15 (missing double quote error)
-inoremap A " | echo "keep  16" " keep 17 (missing double quote error)
+inoremap A " | echo "keep    16" " keep 17 (missing double quote error)
 inoremap A " | let a='keep 18'
 inoremap A \" | "let a='this is comment'
 inoremap A " | inoremap B " keep 19
+let a=1 | inoremap A " | inoremap B " keep 20
+let b=2 | autocmd VimEnter * inoermap A " | inoremap B "
 " "this line is comment"
 
 " ----------
@@ -109,7 +111,12 @@ function! vim8test#This_is_exported(arg1)
 endfunction
 
 " ----------
-" RemoveVim8Spaces()
+" MinifySpaces()
+let minifyspaces     =       '12345' |     let minifyspaces2   =  1
+nnoremap dont minify    keymap
+
+" ----------
+" MinifyVim8Spaces()
 let [s:vim8spaces, s:vim8spaces] = ['a' . 'b', 1 + 2 - 3 * 4 / 5]
 
 " ----------
@@ -130,5 +137,4 @@ let Normal = 0
 echohl Normal " this is not renamed.
 
 let g:this_is_global_val_not_renamed = 0
-
 

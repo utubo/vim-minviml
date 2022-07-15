@@ -15,8 +15,10 @@ enddef
 
 # -----------------
 # Escape strings
-var escMark = 'QQQ'
 var escapedStrs = []
+var escMark = 'QQQ'
+var escVBar = '<QQQ_VB>' # `|`
+var vbarPat = '^\(.\{-}\)\(<QQQ_VB>\)\?$'
 
 def SetupEscMark()
   const joined = join(allLines, '')
@@ -28,6 +30,8 @@ def SetupEscMark()
     i += 1
     escMark = 'QQQ' .. string(i)
   endwhile
+  escVBar = EscMark('VB')
+  vbarPat = '^\(.\{-}\)\(' .. escVBar .. '\)\?$'
 enddef
 
 def EscMark(index: any = ''): string
@@ -103,62 +107,79 @@ const KEYMAPCMD_DICT = {
   cmap: 'cm',
   tmap: 'tma',
 }
-const KEYMAPCMD = printf('^\(%s\|%s\)!\?\s', join(keys(KEYMAPCMD_DICT), '\|'), join(values(KEYMAPCMD_DICT), '\|'))
+const KEYMAPCMD = printf(
+  '^\(%s\|%s\)!\?\s',
+  join(keys(KEYMAPCMD_DICT), '\|'),
+  join(values(KEYMAPCMD_DICT), '\|')
+)
 
 var GLOBALCMD_LIST = [
-  'au',  # autocmd
-  'com', # command
+  'au',
+  'autocmd',
+  'com',
+  'command',
+  'set',
 ]
 extend(GLOBALCMD_LIST, keys(KEYMAPCMD_DICT))
 extend(GLOBALCMD_LIST, values(KEYMAPCMD_DICT))
-const GLOBALCMD = printf('^\(%s\)!\?\s', join(GLOBALCMD_LIST, '\|'))
+const GLOBALCMD = printf('^\(\%(%s\)!\?\)\s\+', join(GLOBALCMD_LIST, '\|'))
 
-def SplitWithVBar()
-  const BAR = EscMark('V') # escape `\|`
-  const OR = EscMark('OR') # escape `||`
+def SplitWithVBar(line: string): list<string>
+  if line =~# lineCommentPat
+    return []
+  endif
+  if !isVim9 && UnescapeStrings(line) =~# lineCommentPat
+    return []
+  endif
+  var rep = line
+  var isUnescaped = false
+  if line =~# KEYMAPCMD
+    # for `nnoremap A " | nnoreap B "`
+    rep = UnescapeStrings(rep)
+    isUnescaped = true
+  endif
+  if match(rep, '|') ==# -1
+    return [line]
+  endif
+  const EB = EscMark('V') # escaped bar `\|`
+  const OR = EscMark('OR') # `||`
+  rep = rep->substitute('||', OR, 'g')->substitute('\\|', EB, 'g')
+  var m = matchlist(rep, '^\(.\{-}\)|\s*\(.*\)$')
+  if len(m) < 2
+    return [line]
+  endif
+  const leftStr  = m[1]->substitute(OR, '||', 'g')->substitute(EB, '\\|', 'g') .. escVBar
+  const rightStr = m[2]->substitute(OR, '||', 'g')->substitute(EB, '\\|', 'g')
+  var newLines = []
+  if isUnescaped
+    extend(newLines, SplitWithVBar(EscapeStrings(leftStr)))
+    extend(newLines, SplitWithVBar(EscapeStrings(rightStr)))
+  else
+    extend(newLines, SplitWithVBar(leftStr))
+    extend(newLines, SplitWithVBar(rightStr))
+  endif
+  return newLines
+enddef
+
+def SplitAllLinesWithVBar()
   var newLines = []
   for line in allLines
-    var rep = line
-    if line =~# KEYMAPCMD
-      # for `nnoremap A " | nnoreap B "`
-      rep = UnescapeStrings(rep)
+    extend(newLines, SplitWithVBar(line))
+  endfor
+  allLines = newLines
+enddef
+
+def UnescapeVBar()
+  var newLines = []
+  var joinNext = false
+  for line in allLines
+    var m = matchlist(line, vbarPat)
+    if joinNext
+      newLines[-1] ..= '|' .. m[1]
+    else
+      add(newLines, m[1])
     endif
-    if match(rep, '|') ==# -1
-      add(newLines, line)
-      continue
-    endif
-    rep = substitute(rep, '\\|', BAR, 'g')
-    rep = substitute(rep, '||', OR, 'g')
-    if line =~# KEYMAPCMD
-      var m = matchlist(rep, '^\(.*\)|\(.*\)')
-      if empty(m)
-        add(newLines, line)
-        continue
-      endif
-      rep = m[1] .. ' | ' .. EscapeStrings(m[2])
-    endif
-    # main
-    var isAutocmd = false
-    for l in split(rep, '\s*|\s*')
-      if isVim9
-        if l =~# lineCommentPat
-          break
-        endif
-      else
-        if UnescapeStrings(l) =~# lineCommentPat
-          break
-        endif
-      endif
-      var r = l
-      r = substitute(r, OR, '||', 'g')
-      r = substitute(r, BAR, '\\|', 'g')
-      if isAutocmd
-        newLines[-1] ..= ' | ' .. r
-      else
-        add(newLines, r)
-        isAutocmd = r =~# '^\(autocmd\|au\|command!\?\|com!\?\) '
-      endif
-    endfor
+    joinNext = !empty(m[2])
   endfor
   allLines = newLines
 enddef
@@ -183,18 +204,26 @@ enddef
 def MinifySpaces()
   var newLines = []
   for line in allLines
-    var rep = line
-    # Minify spaces between words
-    if rep =~# '^set\s\+'
-      rep = substitute(rep, '^set\s\+', 'set ', '')
+    if line =~# GLOBALCMD
+      add(newLines, substitute(line, GLOBALCMD, '\1 ', ''))
     else
-      rep = substitute(rep, '\s\+', ' ', 'g')
+      add(newLines, substitute(line, '\s\+', ' ', 'g'))
     endif
-    # Minify spaces for vim8script
-    if !isVim9 && line !~# GLOBALCMD
-      rep = substitute(rep, ' *\([.,=+*/-]\) *', '\1', 'g')
+  endfor
+  allLines = newLines
+enddef
+
+def MinifyVim8Spaces()
+  if isVim9
+    return
+  endif
+  var newLines = []
+  for line in allLines
+    if line =~# GLOBALCMD
+      add(newLines, line)
+    else
+      add(newLines, substitute(line, ' *\([.,=+*/-]\) *', '\1', 'g'))
     endif
-    add(newLines, rep)
   endfor
   allLines = newLines
 enddef
@@ -204,12 +233,14 @@ def TrimTailComments()
   var tailCommentPat = isVim9 ? '\s#.*$' : '\s".*$'
   for line in allLines
     var rep = line
+    var m = matchlist(rep, vbarPat)
+    rep = m[1]
     if rep !~# GLOBALCMD
       rep = substitute(rep, tailCommentPat, ' ', '')
     endif
     rep = substitute(rep, '\(\\\s\)\?\s*$', '\1', '')
     if !empty(rep)
-      add(newLines, rep)
+      add(newLines, rep .. m[2])
     endif
   endfor
   allLines = newLines
@@ -498,12 +529,14 @@ export def Minify(src: string = '%', dest: string = '', opt: dict<any> = {})
   SetupEscMark()
   TrimAndJoinLines()
   EscapeAllStrings()
+  SplitAllLinesWithVBar()
   MinifySpaces()
-  SplitWithVBar()
   MinifyCommands()
   TrimTailComments()
   MinifyAllDefsLocal()
   MinifyScriptLocal()
+  MinifyVim8Spaces()
+  UnescapeVBar()
   UnescapeAllStrings()
   MinifySIDDefs()
   writefile(allLines, eDest)

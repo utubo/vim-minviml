@@ -24,30 +24,21 @@ ec "string_is_not_changed"
 ec trim
 ec 1
 ec \ 
-ec "split"
-ec "line"
+ec "split"|ec "line"
 var a="keep 1"
 var a="keep 2"
 ec "keep 3" " this is error 'Missing double quote'
-ec "keep 4"
-ec "keep 5 | keep  6"
-ec "keep 7"
-ec "keep 8 | keep 9"
-ino A # keep 10
-ino A #
-ino A "
-var a='keep  11'
+ec "keep 4"|ec "keep 5 | keep  6"
+ec "keep 7"|ec "keep 8 | keep 9"|ino A # keep 10
+ino A #|ino A "|var a='keep  11'
 ino A " \| keep 12" keep 13
 ino <expr> A " \| keep  14"
-ino <expr> A "
-" keep 15 (missing double quote error)
-ino A "
-ec "keep 16" " keep 17 (missing double quote error)
-ino A "
-var a='keep 18'
-ino A \"
-ino A "
-ino B " keep 19
+ino <expr> A "|" keep 15 (missing double quote error)
+ino A "|ec "keep    16" " keep 17 (missing double quote error)
+ino A "|var a='keep 18'
+ino A \"|ino A "|ino B " keep 19
+let a=1|ino A "|ino B " keep 20
+let b=2|au VimEnter * inoermap A " | inoremap B "
 def A(a: dict<any>, b: number): string
 var c = a
 var d = {
@@ -70,7 +61,10 @@ arg2: 'dict key is not renamed.'
 let f = [s, 0]
 for l:d in range(1, t[1])
 endfor
-const l:g = 1
+var [g, h] = [1, 2]
+for [l:i, j] in range(1, t[1])
+endfor
+const l:ba = 1
 endf
 var s = 0
 const [t, lk] = [1, s]
@@ -80,6 +74,8 @@ endfor
 export def! This_is_exported(a: string)
 var b = a
 enddef
+var ln = '12345'|let minifyspaces2 = 1
+nn dont minify    keymap
 def C()
 enddef
 fu D()
@@ -87,6 +83,6 @@ endf
 ec "rename <SID>C() <SID>D()"
 ec "ignore <SID>SidTestDef <SID>SidTestFunction"
 ec "ignore SidTestDef() SidTestFunction()"
-var ln = 0
+var lo = 0
 echoh Normal
 g:this_is_global_val_not_renamed = 0

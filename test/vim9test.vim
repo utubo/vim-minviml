@@ -76,10 +76,12 @@ inoremap A " | var a='keep  11' #this is comment
 inoremap A " \| keep 12" keep 13
 inoremap <expr> A " \| keep  14"
 inoremap <expr> A " | " keep 15 (missing double quote error)
-inoremap A " | echo "keep  16" " keep 17 (missing double quote error)
+inoremap A " | echo "keep    16" " keep 17 (missing double quote error)
 inoremap A " | var a='keep 18'
 inoremap A \" | #var a='this is comment'
 inoremap A " | inoremap B " keep 19
+let a=1 | inoremap A " | inoremap B " keep 20
+let b=2 | autocmd VimEnter * inoermap A " | inoremap B "
 # "this line is comment"
 
 
@@ -108,6 +110,9 @@ function! ScriptLocalFunction(arg1, arg2)
   let localVal3 = [scriptLocalVal, 0]
   for l:localVal in range(1, const1[1])
   endfor
+  var [val1, val2] = [1, 2]
+  for [l:loop1, loop2] in range(1, const1[1])
+  endfor
   const l:localConst = 1
 endfunction
 
@@ -125,7 +130,12 @@ export def! This_is_exported(arg1: string)
 enddef
 
 # ----------
-# RemoveVim8Spaces()
+# MinifySpaces()
+var minifyspaces     =       '12345' |     let minifyspaces2   =  1
+nnoremap dont minify    keymap
+
+# ----------
+# MinifyVim8Spaces()
 # test in vim8test.vim
 
 # ----------
