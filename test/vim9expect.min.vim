@@ -16,7 +16,7 @@ finally
 delete(k)
 endtry
 finish
-var q = 'ESCMARK'
+var q = 'QQQ'
 var r = 0
 ec 'Join line string_is_not_changed'
 var r = 0

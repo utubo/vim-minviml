@@ -27,7 +27,7 @@ finish
 
 " ----------
 " SetupEscMark()
-let default_mark_is_used = 'ESCMARK'
+let default_mark_is_used = 'QQQ'
 
 " ----------
 " JoinLines()

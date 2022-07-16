@@ -29,7 +29,7 @@ finish
 
 # ----------
 # SetupEscMark()
-var default_mark_is_used = 'ESCMARK'
+var default_mark_is_used = 'QQQ'
 
 # ----------
 # JoinLines()

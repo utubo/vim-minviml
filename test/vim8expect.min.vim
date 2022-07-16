@@ -15,7 +15,7 @@ finally
 call delete(s:a)
 endtry
 finish
-let default_mark_is_used='ESCMARK'
+let default_mark_is_used='QQQ'
 let string_is_not_changed=0
 ec 'Join line string_is_not_changed'
 let string_is_not_changed=0
