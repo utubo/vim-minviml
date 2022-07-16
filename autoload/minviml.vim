@@ -18,6 +18,7 @@ enddef
 var escapedStrs = []
 var escMark = 'QQQ'
 var escVBar = '<QQQ_VB>' # `|`
+var escStr =  '<QQQ_\d\+>'
 var vbarPat = '^\(.\{-}\)\(<QQQ_VB>\)\?$'
 
 def SetupEscMark()
@@ -32,6 +33,7 @@ def SetupEscMark()
   endwhile
   escVBar = EscMark('VB')
   vbarPat = '^\(.\{-}\)\(' .. escVBar .. '\)\?$'
+  escStr = EscMark('\(\d\+\)')
 enddef
 
 def EscMark(index: any = ''): string
@@ -54,9 +56,8 @@ def EscapeAllStrings()
   allLines = newLines
 enddef
 
-const ESC_STR_PAT = EscMark('\(\d\+\)')
 def UnescapeStrings(line: string): string
-  return substitute(line, ESC_STR_PAT, (m) => escapedStrs[str2nr(m[1])], 'g')
+  return substitute(line, escStr, (m) => escapedStrs[str2nr(m[1])], 'g')
 enddef
 
 def UnescapeAllStrings()
