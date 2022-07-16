@@ -17,8 +17,8 @@ enddef
 # Escape strings
 var escapedStrs = []
 var escMark = 'QQQ'
+var escStr  = '<QQQ_\d\+>'
 var escVBar = '<QQQ_VB>' # `|`
-var escStr =  '<QQQ_\d\+>'
 var vbarPat = '^\(.\{-}\)\(<QQQ_VB>\)\?$'
 
 def SetupEscMark()
