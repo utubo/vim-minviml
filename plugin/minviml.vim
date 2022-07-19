@@ -1,7 +1,9 @@
+vim9script
+
 if exists('g:minviml')
   finish
 endif
-let g:minviml = 1
+g:minviml = 1
 
 augroup minviml
   au!
