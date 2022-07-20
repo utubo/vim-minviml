@@ -310,8 +310,8 @@ def MinifyCommands()
     rep = substitute(rep, '^silent\(!\?\) ', 'sil\1 ', '')
     rep = substitute(
       rep,
-      '^\(sil!\? \)\?\(' .. COMMAND_PAT .. '\)\>',
-      (m) => m[1] .. COMMAND_DICT[m[2]],
+      '^\(sil!\? \)\?\(' .. COMMAND_PAT .. '\)\(!\|\s\|$\)',
+      (m) => m[1] .. COMMAND_DICT[m[2]] .. m[3],
       ''
     )
     rep = substitute(
