@@ -553,5 +553,6 @@ export def Minify(src: string = '%', dest: string = '', opt: dict<any> = {})
   echoh Delimiter
   echo 'minify to' eDest
   echoh Normal
+  redraw
 enddef
 
