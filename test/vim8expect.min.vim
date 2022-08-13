@@ -25,6 +25,7 @@ let s:g='two'
 let s:h=$'abc{s:f}{s:g}'
 let s:h=$'abc{s:f}xyz{s:g}{this is dummy}'
 let s:i=$"abc{s:f}xyz{s:g}{this is dummy}"
+ec $'{s:f->substitute('.',$'{s:g}')}'
 ec trim
 ec 1
 ec \ 

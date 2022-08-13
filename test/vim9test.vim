@@ -43,11 +43,12 @@ echo
 # EscapeStrings()
 var string_is_not_changed = 0
 echo "string_is_not_changed"
-var exprstrval1 = 1
-var exprstrval2 = 'two'
-var expr_str1 = $'abc{exprstrval1}{exprstrval2}'
-var expr_str1 = $'abc{exprstrval1}xyz{exprstrval2}{this is dummy}'
-var expr_str2 = $"abc{exprstrval1}xyz{exprstrval2}{this is dummy}"
+var val1 = 1
+var val2 = 'two'
+var expr_str1 = $'abc{val1}{val2}'
+var expr_str1 = $'abc{val1}xyz{val2}{this is dummy}'
+var expr_str2 = $"abc{val1}xyz{val2}{this is dummy}"
+echo $'{val1->substitute('.', $'{val2}')}'
 
 # ----------
 # TrimAndJoinLines()

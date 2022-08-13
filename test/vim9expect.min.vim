@@ -26,6 +26,7 @@ var t = 'two'
 var lk = $'abc{s}{t}'
 var lk = $'abc{s}xyz{t}{this is dummy}'
 var ll = $"abc{s}xyz{t}{this is dummy}"
+ec $'{s->substitute('.', $'{t}')}'
 ec trim
 ec 1
 ec \ 
