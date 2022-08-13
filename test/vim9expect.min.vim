@@ -21,6 +21,11 @@ var r = 0
 ec 'Join line string_is_not_changed'
 var r = 0
 ec "string_is_not_changed"
+var s = 1
+var t = 'two'
+var lk = $'abc{s}'
+var lk = $'abc{s}xyz{t}{this is dummy}'
+var ll = $"abc{s}xyz{t}{this is dummy}"
 ec trim
 ec 1
 ec \ 
@@ -41,16 +46,18 @@ let a=1|ino A "|ino B " keep 20
 let b=2|au VimEnter * inoermap A " | inoremap B "
 set set1=setvalue1
 set set2=# not comment
+au VimEnter * var a = 1 # this is comment
+au VimEnter * nmap # this is not comment
 def A(a: dict<any>, b: number): string
 var c = a
 var d = {
 arg2: 'dict key is not renamed.'
 }
-var e = [s, 0]
-for c in range(1, t[1])
+var e = [lm, 0]
+for c in range(1, ln[1])
 endfor
 var [f, g] = [1, 2]
-for [l:h, i] in range(1, t[1])
+for [l:h, i] in range(1, ln[1])
 endfor
 const j = 1
 final ba = '2'
@@ -60,23 +67,23 @@ let d = a:b
 let l:e = {
 arg2: 'dict key is not renamed.'
 }
-let f = [s, 0]
-for l:d in range(1, t[1])
+let f = [lm, 0]
+for l:d in range(1, ln[1])
 endfor
 var [g, h] = [1, 2]
-for [l:i, j] in range(1, t[1])
+for [l:i, j] in range(1, ln[1])
 endfor
 const l:ba = 1
 endf
-var s = 0
-const [t, lk] = [1, s]
+var lm = 0
+const [ln, lo] = [1, lm]
 final f = 'FINAL'
-for [ll, lm] in [[1, 2], [3, t[0]]]
+for [lp, lq] in [[1, 2], [3, ln[0]]]
 endfor
 export def! This_is_exported(a: string)
 var b = a
 enddef
-var ln = '12345'|let minifyspaces2 = 1
+var lr = '12345'|let minifyspaces2 = 1
 nn dont minify    keymap
 def C()
 enddef
@@ -85,6 +92,6 @@ endf
 ec "rename <SID>C() <SID>D()"
 ec "ignore <SID>SidTestDef <SID>SidTestFunction"
 ec "ignore SidTestDef() SidTestFunction()"
-var lo = 0
+var ls = 0
 echoh Normal
 g:this_is_global_val_not_renamed = 0

@@ -41,6 +41,11 @@ echo
 " EscapeStrings()
 let string_is_not_changed = 0
 echo "string_is_not_changed"
+let s:exprstrval1 = 1
+let s:exprstrval2 = 'two'
+let s:expr_str1 = $'abc{s:exprstrval1}'
+let s:expr_str1 = $'abc{s:exprstrval1}xyz{s:exprstrval2}{this is dummy}'
+let s:expr_str2 = $"abc{s:exprstrval1}xyz{s:exprstrval2}{this is dummy}"
 
 " ----------
 " TrimAndJoinLines()
@@ -123,7 +128,7 @@ let [s:vim8spaces, s:vim8spaces] = ['a' . 'b', 1 + 2 - 3 * 4 / 5]
 
 " ----------
 " UnescapeStrings()
-" test in the test of EscapeString()
+" test in the test of EscapeStrings()
 
 " ----------
 " MinifySIDDefs()

@@ -20,6 +20,11 @@ let string_is_not_changed=0
 ec 'Join line string_is_not_changed'
 let string_is_not_changed=0
 ec "string_is_not_changed"
+let s:f=1
+let s:g='two'
+let s:h=$'abc{s:f}'
+let s:h=$'abc{s:f}xyz{s:g}{this is dummy}'
+let s:i=$"abc{s:f}xyz{s:g}{this is dummy}"
 ec trim
 ec 1
 ec \ 
@@ -44,7 +49,7 @@ let d=a:b
 let l:e={
 arg2: 'dict key is not renamed.'
 }
-let f=[s:f,0]
+let f=[s:j,0]
 for l:d in range(1,const1[1])
 endfo
 let [g,h]=[1,2]
@@ -52,16 +57,16 @@ for [l:i,j] in range(1,const1[1])
 endfo
 cons l:ba=1
 endf
-let s:f=0
-cons [s:g,s:h]=[1,s:f]
-for [s:i,s:j] in [[1,2],[3,s:g[0]]]
+let s:j=0
+cons [s:ba,s:bb]=[1,s:j]
+for [s:bc,s:bd] in [[1,2],[3,s:ba[0]]]
 endfo
 fu! vim8test#This_is_exported(b)
 let l:c=a:b
 endf
 let minifyspaces='12345'|let minifyspaces2=1
 nn dont minify    keymap
-let [s:ba,s:ba]=['a'.'b',1+2-3*4/5]
+let [s:be,s:be]=['a'.'b',1+2-3*4/5]
 fu s:B()
 endf
 ec "rename <SID>SidTestDef() <SID>B()"

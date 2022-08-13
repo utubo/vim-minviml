@@ -42,7 +42,12 @@ enddef
 
 const ESC_STR_SUB = '\=EscMark(len(add(escapedStrs, submatch(0))) - 1)'
 def EscapeStrings(line: string): string
-  return substitute(line, '''\([^'']\|''''\)*''\|"\([^"\\]\|\\.\)*"', ESC_STR_SUB, 'g')
+  var rep = line
+    ->substitute('\$''\([^'']\|''''\)*''\|\$"\([^"\\]\|\\.\)*"', (m) => {
+      return m[0]->substitute('[^}]*{\|}[^{]*', ESC_STR_SUB, 'g')
+    }, 'g')
+    ->substitute('''\([^'']\|''''\)*''\|"\([^"\\]\|\\.\)*"', ESC_STR_SUB, 'g')
+  return rep
 enddef
 
 def EscapeAllStrings()
@@ -532,7 +537,7 @@ export def Minify(src: string = '%', dest: string = '', opt: dict<any> = {})
   echoh Normal
   redraw
   allLines = readfile(eSrc)
-  isVim9 = allLines[0] ==# 'vim9script'
+  isVim9 = allLines[0] =~# '^vim9script'
   lineCommentPat = isVim9 ? '^\s*#' : '^\s*"'
   SetupOption(opt)
   SetupEscMark()
