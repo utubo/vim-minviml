@@ -23,7 +23,7 @@ var r = 0
 ec "string_is_not_changed"
 var s = 1
 var t = 'two'
-var lk = $'abc{s}'
+var lk = $'abc{s}{t}'
 var lk = $'abc{s}xyz{t}{this is dummy}'
 var ll = $"abc{s}xyz{t}{this is dummy}"
 ec trim

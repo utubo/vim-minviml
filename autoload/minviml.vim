@@ -44,7 +44,7 @@ const ESC_STR_SUB = '\=EscMark(len(add(escapedStrs, submatch(0))) - 1)'
 def EscapeStrings(line: string): string
   var rep = line
     ->substitute('\$''\([^'']\|''''\)*''\|\$"\([^"\\]\|\\.\)*"', (m) => {
-      return m[0]->substitute('[^}]*{\|}[^{]*', ESC_STR_SUB, 'g')
+      return m[0]->substitute('[^{}]*{\|}[^{}]*', ESC_STR_SUB, 'g')
     }, 'g')
     ->substitute('''\([^'']\|''''\)*''\|"\([^"\\]\|\\.\)*"', ESC_STR_SUB, 'g')
   return rep

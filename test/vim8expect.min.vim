@@ -22,7 +22,7 @@ let string_is_not_changed=0
 ec "string_is_not_changed"
 let s:f=1
 let s:g='two'
-let s:h=$'abc{s:f}'
+let s:h=$'abc{s:f}{s:g}'
 let s:h=$'abc{s:f}xyz{s:g}{this is dummy}'
 let s:i=$"abc{s:f}xyz{s:g}{this is dummy}"
 ec trim

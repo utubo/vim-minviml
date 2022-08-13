@@ -45,7 +45,7 @@ var string_is_not_changed = 0
 echo "string_is_not_changed"
 var exprstrval1 = 1
 var exprstrval2 = 'two'
-var expr_str1 = $'abc{exprstrval1}'
+var expr_str1 = $'abc{exprstrval1}{exprstrval2}'
 var expr_str1 = $'abc{exprstrval1}xyz{exprstrval2}{this is dummy}'
 var expr_str2 = $"abc{exprstrval1}xyz{exprstrval2}{this is dummy}"
 
