@@ -402,7 +402,7 @@ def ReplaceNames(lines: list<string>, oldToNew: dict<any>, scope: list<string> =
   if empty(oldToNew)
     return lines
   endif
-  const scopePat = '\(' .. join(extend(['^', '[^a-zA-Z_:$]'], scope), '\|') .. '\)'
+  const scopePat = '\(' .. join(extend(['^', '[^a-zA-Z_:$&]'], scope), '\|') .. '\)'
   const namePat = '\(' .. join(keys(oldToNew), '\|') .. '\)'
   const dictKeys = '\<' .. namePat .. ':'
   const pat = scopePat .. '\@<=' .. namePat .. '\([^a-zA-Z0-9_(:]\|$\)'

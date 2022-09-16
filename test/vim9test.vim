@@ -110,6 +110,7 @@ def ScriptLocalDef(arg1: dict<any>, arg2: number): string
   endfor
   const localConst = 1
   final localFinal = '2'
+  var ff = &ff
 enddef
 
 function! ScriptLocalFunction(arg1, arg2)

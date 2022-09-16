@@ -57,6 +57,7 @@ let [g,h]=[1,2]
 for [l:i,j] in range(1,const1[1])
 endfo
 cons l:ba=1
+cons bb=&ff
 endf
 let s:j=0
 cons [s:ba,s:bb]=[1,s:j]

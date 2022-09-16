@@ -104,6 +104,7 @@ function! s:ScriptLocalFunction(arg1, arg2)
   for [l:loop1, loop2] in range(1, const1[1])
   endfor
   const l:localConst = 1
+  const ff = &ff
 endfunction
 
 " ----------

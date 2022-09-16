@@ -62,6 +62,7 @@ for [l:h, i] in range(1, ln[1])
 endfor
 const j = 1
 final ba = '2'
+var bb = &ff
 enddef
 fu! B(b, c)
 let d = a:b
