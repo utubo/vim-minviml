@@ -548,10 +548,11 @@ export def Minify(src: string = '%', dest: string = '', opt: dict<any> = {})
   SetupEscMark()
   TrimAndJoinLines()
   EscapeAllStrings()
+  TrimTailComments() # before split with vertbar
   SplitAllLinesWithVBar()
   MinifySpaces()
   MinifyCommands()
-  TrimTailComments()
+  TrimTailComments() # after split with vertbar
   MinifyAllDefsLocal()
   MinifyScriptLocal()
   MinifyVim8Spaces()
@@ -561,7 +562,7 @@ export def Minify(src: string = '%', dest: string = '', opt: dict<any> = {})
   writefile(allLines, eDest)
   redraw
   echoh Delimiter
-  echo 'minify to' eDest
+  echo 'minified to' eDest
   echoh Normal
   redraw
 enddef

@@ -45,6 +45,7 @@ let a=1|ino A "|ino B " keep 20
 let b=2|au VimEnter * inoermap A " | inoremap B "
 set set1=setvalue1
 set set2=" comment, so this line is error
+let c=3
 fu! s:A(b,c)
 let d=a:b
 let l:e={

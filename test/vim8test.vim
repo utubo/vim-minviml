@@ -89,6 +89,7 @@ let b=2 | autocmd VimEnter * inoermap A " | inoremap B "
 set set1=setvalue1 " comment
 set set2=" comment, so this line is error
 " "this line is comment"
+let c = 3	" this|is|comment
 
 " ----------
 " MinifyAllDefsLocal()

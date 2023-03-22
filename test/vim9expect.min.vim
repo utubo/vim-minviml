@@ -49,6 +49,7 @@ set set1=setvalue1
 set set2=# not comment
 au VimEnter * var a = 1 # this is comment
 au VimEnter * nmap # this is not comment
+var c = 3
 def A(a: dict<any>, b: number): string
 var c = a
 var d = {

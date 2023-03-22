@@ -93,6 +93,7 @@ set set2=# not comment
 # "this line is comment"
 autocmd VimEnter * var a = 1 # this is comment
 autocmd VimEnter * nmap # this is not comment
+var c = 3	# this|is|comment
 
 
 # ----------
