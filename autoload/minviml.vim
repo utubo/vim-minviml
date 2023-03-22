@@ -42,10 +42,13 @@ enddef
 
 const ESC_STR_SUB = '\=EscMark(len(add(escapedStrs, submatch(0))) - 1)'
 def EscapeStrings(line: string): string
+  const pat =
+    isVim9 ? '\$''\([^'']\|''''\)*''\|\$"\([^"\\]\|\\.\)*"'
+    :        '''\([^'']\|''''\)*''\|"\([^"\\]\|\\.\)*"'
   var rep = line
   while true
     var tmp = rep
-    rep = tmp->substitute('\$''\([^'']\|''''\)*''\|\$"\([^"\\]\|\\.\)*"', (m) => {
+    rep = tmp->substitute(pat, (m) => {
       return m[0]->substitute('[^{}]*{\|}[^{}]*', ESC_STR_SUB, 'g')
     }, 'g')
     if rep ==# tmp

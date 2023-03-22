@@ -44,9 +44,9 @@ echo "string_is_not_changed"
 let s:val1 = 1
 let s:val2 = 'two'
 let s:expr_str1 = $'abc{s:val1}{s:val2}'
-let s:expr_str1 = $'abc{s:val1}xyz{s:val2}{this is dummy}'
-let s:expr_str2 = $"abc{s:val1}xyz{s:val2}{this is dummy}"
-echo $'{s:val1->substitute('.', $'{s:val2}')}'
+let s:expr_str1 = 'abc{s:val1}xyz{s:val2}{this is dummy}'
+let s:expr_str2 = "abc{s:val1}xyz{s:val2}{this is dummy}"
+echo '{s:val1->substitute('.', $'{s:val2}')}'
 
 " ----------
 " TrimAndJoinLines()
