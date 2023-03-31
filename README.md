@@ -61,6 +61,10 @@ call minviml#Minify(src, dest, options)
   let s:val3=3 " '.*3' is fixed.
   ```
 
+## Events
+
+- `MinVimlMinified` after minify.
+
 ## Note: All strings will not be changed.
 - e.g.1
   - Before

@@ -568,5 +568,6 @@ export def Minify(src: string = '%', dest: string = '', opt: dict<any> = {})
   echo 'minified to' eDest
   echoh Normal
   redraw
+  doautocmd User MinVimlMinified
 enddef
 
