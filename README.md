@@ -25,7 +25,7 @@ Minify VIML.
 dein#add('utubo/vim-minviml')
 ```
 
-# Require
+# Requirements
 vim9script
 
 # Usage
