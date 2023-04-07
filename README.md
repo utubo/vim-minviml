@@ -40,8 +40,9 @@ call minviml#Minify(src, dest, options)
   - `*.vim` -> `*.min.vim`
   - `/src/foo/*.src.vim` -> `/foo/*.vim`
   - `/bar_src/buz/*.src.vim` -> `/bar/buz/*.vim`
-  When write to `*.src.vim`, minify automatically.
 - options ... The default is `{}`
+
+When write to `*.src.vim`, minify automatically.
 
 ## Options
 `reserved` and `fixed`
