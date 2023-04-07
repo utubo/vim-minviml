@@ -525,19 +525,23 @@ def MinifySIDDefs()
 enddef
 
 def CreateDestPath(src: string): string
-  if src =~# 'vimrc\.src\.vim$'
-    return substitute(src, '\.src\.vim$', '', '')
-  elseif src =~# '\.src\.vim$'
-    return substitute(src, '\.src\.vim$', '.vim', '')
-  elseif src =~# '\.vim$'
-    return substitute(src, '\.vim$', '.min.vim', '')
+  var dest = src
+  dest = substitute(dest, '[/\\_]src[/\\]', '', 'g')
+  if dest =~# 'vimrc\.src\.vim$'
+    return substitute(dest, '\.src\.vim$', '', '')
+  elseif dest =~# '\.src\.vim$'
+    return substitute(dest, '\.src\.vim$', '.vim', '')
+  elseif dest =~# '\.vim$'
+    return substitute(dest, '\.vim$', '.min.vim', '')
   else
-    return src .. '.min.vim'
+    return dest .. '.min.vim'
   endif
 enddef
 
-export def Minify(src: string = '%', dest: string = '', opt: dict<any> = {})
+export def Minify(src: string = '%:p', dest: string = '', opt: dict<any> = {})
   var eSrc = expand(src)
+  g:src = src
+  g:eSrc = eSrc
   var eDest = dest != '' ? expand(dest) : CreateDestPath(eSrc)
   redraw
   echoh Delimiter
