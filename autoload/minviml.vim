@@ -526,7 +526,7 @@ enddef
 
 def CreateDestPath(src: string): string
   var dest = src
-  dest = substitute(dest, '[/\\_]src[/\\]', '', 'g')
+  dest = substitute(dest, '_*src[/\\]', '', 'g')
   if dest =~# 'vimrc\.src\.vim$'
     return substitute(dest, '\.src\.vim$', '', '')
   elseif dest =~# '\.src\.vim$'
