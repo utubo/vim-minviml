@@ -405,7 +405,7 @@ def ReplaceNames(lines: list<string>, oldToNew: dict<any>, scope: list<string> =
   if empty(oldToNew)
     return lines
   endif
-  const scopePat = '\(' .. join(extend(['^', '[^a-zA-Z_:$&]'], scope), '\|') .. '\)'
+  const scopePat = '\(' .. join(extend(['^', '[^a-zA-Z_:$&.]', '\W\.'], scope), '\|') .. '\)'
   const namePat = '\(' .. join(keys(oldToNew), '\|') .. '\)'
   const dictKeys = '\<' .. namePat .. ':'
   const pat = scopePat .. '\@<=' .. namePat .. '\([^a-zA-Z0-9_(:]\|$\)'
@@ -476,7 +476,7 @@ def MinifyScriptLocal()
   scriptLocalDefs = CreateNewNamesMap(allLines, defNames, { offset: 'A', format: '%s(' })
 
   if !empty(scriptLocalDefs)
-    var pat = printf('[a-zA-Z0-9_:#]\@<!\(s:\)\?\(%s\)\@>(', join(keys(scriptLocalDefs), '\|'))
+    var pat = printf('[a-zA-Z0-9_:#.]\@<!\(s:\)\?\(%s\)\@>(', join(keys(scriptLocalDefs), '\|'))
     var newLines = []
     for line in allLines
       add(newLines, substitute(line, pat, (m) => m[1] .. scriptLocalDefs[m[2]], 'g'))
