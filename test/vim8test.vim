@@ -142,6 +142,13 @@ echo "ignore <SID>SidTestDef <SID>SidTestFunction"
 echo "ignore SidTestDef() SidTestFunction()"
 
 " ----------
+" Magic Comment
+" minviml:fixed=s:zzz,s:yyy:reserved=s:bf
+let s:zzz = 1
+let s:yyy = 2
+let s:xxx = 3
+
+" ----------
 " Others
 let Normal = 0
 echohl Normal " this is not renamed.

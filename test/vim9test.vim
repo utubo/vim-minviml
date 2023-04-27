@@ -165,6 +165,13 @@ echo "ignore <SID>SidTestDef <SID>SidTestFunction"
 echo "ignore SidTestDef() SidTestFunction()"
 
 # ----------
+# Magic Comment
+# minviml:fixed=zzz,yyy:reserved=B,ls
+var zzz = 1
+var yyy = 2
+var xxx = 3
+
+# ----------
 # Others
 var Normal = 0
 echohl Normal # this is not renamed.

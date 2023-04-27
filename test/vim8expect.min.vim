@@ -75,6 +75,9 @@ endf
 ec "rename <SID>SidTestDef() <SID>B()"
 ec "ignore <SID>SidTestDef <SID>SidTestFunction"
 ec "ignore SidTestDef() SidTestFunction()"
+let s:zzz=1
+let s:yyy=2
+let s:bg=3
 let Normal=0
 echoh Normal
 let g:this_is_global_val_not_renamed=0

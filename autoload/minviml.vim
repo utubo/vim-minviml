@@ -9,8 +9,24 @@ var lineCommentPat = '^\s*"'
 var reserved = ''
 var fixed = ''
 def SetupOption(opt: dict<any>)
-  reserved = '^\(' .. join(get(opt, 'reserved', []), '\|') .. '\)$'
-  fixed = '^\(' .. join(get(opt, 'fixed', []), '\|') .. '\)$'
+  var fixedList = get(opt, 'fixed', [])
+  var reservedList = get(opt, 'reserved', [])
+  # Apply the magic comment.
+  # (example) # minviml:fixed=A,B,C:reserved=E,F,G
+  for l in allLines
+    if l =~# '^[#"]\s*minviml:'
+      for param in l->split('\(\<[albswg]\)\@<!:')
+        const kv = param->split('=')
+        if kv[0] ==# 'fixed'
+          fixedList += kv[1]->split(',')
+        elseif kv[0] ==# 'reserved'
+          reservedList += kv[1]->split(',')
+        endif
+      endfor
+    endif
+  endfor
+  fixed = '^\(' .. join(fixedList, '\|') .. '\)$'
+  reserved = '^\(' .. join(reservedList, '\|') .. '\)$'
 enddef
 
 # -----------------
@@ -477,6 +493,11 @@ def MinifyScriptLocal()
 
   if !empty(scriptLocalDefs)
     var pat = printf('[a-zA-Z0-9_:#.]\@<!\(s:\)\?\(%s\)\@>(', join(keys(scriptLocalDefs), '\|'))
+    # var pat = printf(
+    #   '[a-zA-Z0-9_:#.]\@<!\(s:\)\?\(%s\)%s',
+    #   keys(scriptLocalDefs)->join('\|'),
+    #   isVim9 ? '\>' : '\@>('
+    # )
     var newLines = []
     for line in allLines
       add(newLines, substitute(line, pat, (m) => m[1] .. scriptLocalDefs[m[2]], 'g'))
@@ -574,4 +595,3 @@ export def Minify(src: string = '%:p', dest: string = '', opt: dict<any> = {})
   redraw
   doautocmd User MinVimlMinified
 enddef
-

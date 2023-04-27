@@ -95,6 +95,9 @@ endf
 ec "rename <SID>C() <SID>D()"
 ec "ignore <SID>SidTestDef <SID>SidTestFunction"
 ec "ignore SidTestDef() SidTestFunction()"
-var ls = 0
+var zzz = 1
+var yyy = 2
+var lt = 3
+var mk = 0
 echoh Normal
 g:this_is_global_val_not_renamed = 0

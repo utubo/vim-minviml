@@ -64,6 +64,23 @@ When write to `*.src.vim`, minify automatically.
   let s:val3=3 " '.*3' is fixed.
   ```
 
+You can write a magic comment in the target vimscript.
+```vim
+" minviml:reserved=s:foo,s:bar:fixed=g:buzz,boo
+
+" You can write the magic comment with multiple liens
+" minviml:reserved=s:hoge
+" minviml:fixed=s:fuga
+```
+
+this means
+```
+{
+  'reserved': ['s:foo', 's:bar', 's:hoge'],
+  'fixed': ['g:buzz', 'boo', 's:fuga']
+}
+```
+
 ## Events
 
 - `MinVimlMinified` after minify.
