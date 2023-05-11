@@ -122,7 +122,7 @@ const KEYMAPCMD_DICT = {
   cunmap: 'cu',
   iunmap: 'iu',
   lunmap: 'lu',
-  nunmap: 'nu',
+  nunmap: 'nun',
   ounmap: 'ou',
   xunmap: 'xu',
   vunmap: 'vu',
