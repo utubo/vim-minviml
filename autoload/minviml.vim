@@ -14,8 +14,9 @@ def SetupOption(opt: dict<any>)
   # Apply the magic comment.
   # (example) # minviml:fixed=A,B,C:reserved=E,F,G
   for l in allLines
-    if l =~# '^[#"]\s*minviml:'
-      for param in l->split('\(\<[albswg]\)\@<!:')
+    const mc = l->matchstr('[#"]\s*minviml:.\+$')
+    if !!mc
+      for param in mc->split('\(\<[albswg]\)\@<!:')
         const kv = param->split('=')
         if kv[0] ==# 'fixed'
           fixedList += kv[1]->split(',')
