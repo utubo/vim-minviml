@@ -116,8 +116,8 @@ this means
     ```
 
 # Example
-- https://github.com/utubo/vim-tabtoslash/tree/main/autoload<br>
-  [tabtoslash.src.vim ](https://github.com/utubo/vim-tabtoslash/blob/main/autoload/tabtoslash.src.vim)
+- https://github.com/utubo/vim-skipslash/tree/main/autoload<br>
+  [skipslash.src.vim ](https://github.com/utubo/vim-skipslash/blob/main/autoload/skipslash.src.vim)
   ->
-  [tabtoslash.vim ](https://github.com/utubo/vim-tabtoslash/blob/main/autoload/tabtoslash.vim)
+  [skipslash.vim ](https://github.com/utubo/vim-skipslash/blob/main/autoload/skipslash.vim)
 
