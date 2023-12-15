@@ -594,5 +594,7 @@ export def Minify(src: string = '%:p', dest: string = '', opt: dict<any> = {})
   echo 'minified to' eDest
   echoh Normal
   redraw
-  doautocmd User MinVimlMinified
+  if exists('#User#MinVimlMinified')
+    doautocmd User MinVimlMinified
+  endif
 enddef
