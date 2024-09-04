@@ -561,9 +561,8 @@ def CreateDestPath(src: string): string
 enddef
 
 export def Minify(src: string = '%:p', dest: string = '', opt: dict<any> = {})
-  var eSrc = expand(src)
   g:src = src
-  g:eSrc = eSrc
+  var eSrc = expand(src)
   var eDest = dest != '' ? expand(dest) : CreateDestPath(eSrc)
   redraw
   echoh Delimiter
