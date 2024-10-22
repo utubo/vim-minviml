@@ -6,11 +6,12 @@ var lineCommentPat = '^\s*"'
 
 # -----------------
 # Options
+const DEFAULT_RESERVED_LIST = ['ls']
 var reserved = ''
 var fixed = ''
 def SetupOption(opt: dict<any>)
   var fixedList = get(opt, 'fixed', [])
-  var reservedList = get(opt, 'reserved', [])
+  var reservedList = DEFAULT_RESERVED_LIST + get(opt, 'reserved', [])
   # Apply the magic comment.
   # (example) # minviml:fixed=A,B,C:reserved=E,F,G
   for l in allLines
