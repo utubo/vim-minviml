@@ -30,7 +30,7 @@ jobs:
           version: nightly
       - name: Run tests
         run: |
-          expot CI=1
+          export CI=1
           cd $GITHUB_WORKSPACE/test
           vim -S vimrc.test.vim
 
