@@ -562,15 +562,17 @@ def CreateDestPath(src: string): string
 enddef
 
 export def Minify(src: string = '%:p', dest: string = '', opt: dict<any> = {})
-  g:src = src
   var eSrc = expand(src)
+  allLines = readfile(eSrc)
+  if !allLines
+    return
+  endif
   var eDest = dest != '' ? expand(dest) : CreateDestPath(eSrc)
   redraw
   echoh Delimiter
   echo 'minifing to' eDest '...'
   echoh Normal
   redraw
-  allLines = readfile(eSrc)
   isVim9 = allLines[0] =~# '^vim9script'
   lineCommentPat = isVim9 ? '^\s*#' : '^\s*"'
   SetupOption(opt)
