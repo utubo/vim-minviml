@@ -7,6 +7,9 @@ try
   let s:actual = join(readfile(s:tmpfile), '\n')
   if s:expect ==# s:actual
     echo 'TEST OK !'
+  elseif $CI ==# '1'
+    echom system($'diff {s:srcfile} {s:expfile}')
+    g:minviml_test_faild = 1
   else
     execute 'tabe ' . s:expfile
     execute 'diffs ' . s:tmpfile

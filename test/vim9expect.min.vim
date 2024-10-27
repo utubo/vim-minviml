@@ -8,6 +8,9 @@ var o = join(readfile(n), '\n')
 var p = join(readfile(k), '\n')
 if o ==# p
 ec 'TEST OK !'
+elseif $CI ==# '1'
+echom system($'diff {m} {n}')
+g:minviml_test_faild = 1
 else
 exe 'tabe ' .. n
 exe 'diffs ' .. k

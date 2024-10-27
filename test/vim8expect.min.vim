@@ -7,6 +7,9 @@ let s:d=join(readfile(s:c),'\n')
 let s:e=join(readfile(s:a),'\n')
 if s:d==# s:e
 ec 'TEST OK !'
+elseif $CI==# '1'
+echom system($'diff {s:b} {s:c}')
+g:minviml_test_faild=1
 else
 exe 'tabe '.s:c
 exe 'diffs '.s:a

@@ -9,6 +9,9 @@ try
   var actual = join(readfile(tmpfile), '\n')
   if expect ==# actual
     echo 'TEST OK !'
+  elseif $CI ==# '1'
+    echom system($'diff {srcfile} {expfile}')
+    g:minviml_test_faild = 1
   else
     execute 'tabe ' .. expfile
     execute 'diffs ' .. tmpfile
