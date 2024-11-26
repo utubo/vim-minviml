@@ -404,14 +404,12 @@ def CreateNewNamesMap(lines: list<string>, names: list<string>, opt: dict<any> =
     endif
     while true
       nameIndex  = nameIndex + 1
-      var newName = printf(
-        fmt,
-        substitute(string(nameIndex),
+      var newName = substitute(
+        string(nameIndex),
         '\(\d\)',
         '\=nr2char(char2nr(submatch(1)) + offset)', 'g')
-      )
       if joined !~# '\<' .. newName .. '\>' && newName !~# reserved
-        vals[name] = newName
+        vals[name] = printf(fmt, newName)
         break
       endif
     endwhile
