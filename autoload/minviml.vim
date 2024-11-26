@@ -176,7 +176,7 @@ def SplitWithVBar(line: string): list<string>
   const EB = EscMark('V') # escaped bar `\|`
   const OR = EscMark('OR') # `||`
   rep = rep->substitute('||', OR, 'g')->substitute('\\|', EB, 'g')
-  var m = matchlist(rep, '^\(.\{-}\)|\s*\(.*\)$')
+  const m = matchlist(rep, '^\(.\{-}\)|\s*\(.*\)$')
   if len(m) < 2
     return [line]
   endif
@@ -205,7 +205,7 @@ def UnescapeVBar()
   var newLines = []
   var joinNext = false
   for line in allLines
-    var m = matchlist(line, vbarPat)
+    const m = matchlist(line, vbarPat)
     if joinNext
       newLines[-1] ..= '|' .. m[1]
     else
@@ -262,9 +262,9 @@ enddef
 
 def TrimTailComments()
   var newLines = []
-  var tailCommentPat = isVim9 ? '\s#.*$' : '\s".*$'
+  const tailCommentPat = isVim9 ? '\s#.*$' : '\s".*$'
   for line in allLines
-    var m = matchlist(line, vbarPat)
+    const m = matchlist(line, vbarPat)
     var rep = m[1]
     if rep !~# GLOBALCMD || rep =~# '^set \|setl '
       rep = substitute(rep, tailCommentPat, ' ', '')
@@ -380,7 +380,7 @@ enddef
 def ScanNames(names: list<any>, lines: list<string>, pat1: list<string>, pat2: string)
   for line in lines
     for pat in pat1
-      var m = matchlist(line, pat)
+      const m = matchlist(line, pat)
       if !empty(m)
         for n in Scan(m[1], pat2, 1)
           if index(names, n) ==# -1
@@ -456,7 +456,7 @@ def MinifyDefLocal(lines: list<string>): list<string>
   # l:val
   ScanNames(srcVals, lines, ['^\%(var\|const\?\|final\|let\)\( [^=]\+\)', '^for\( [^=]\+\) in '], '\%(a:\|[ ,[]\|[ ,[]l:\)\([a-zA-Z_][a-zA-Z0-9_]\+\)')
   # minify
-  var newVals = CreateNewNamesMap(lines, srcVals)
+  const newVals = CreateNewNamesMap(lines, srcVals)
   var newLines = ReplaceNames(lines, newVals, ['l:', 'a:'])
   newLines[0] = substitute(newLines[0], escCoron, ':', 'g')
   return newLines
@@ -487,7 +487,7 @@ var scriptLocalDefs = {}
 def MinifyScriptLocal()
   # def, function
   var defNames = []
-  var defPat =
+  const defPat =
     isVim9 ? '^\%(def\|fu\)!\? \([A-Z][a-zA-z0-9_]\+\)('
     :        '^fu!\? s:\([a-zA-Z][a-zA-Z0-9_]\+\)('
   for line in allLines
@@ -496,8 +496,8 @@ def MinifyScriptLocal()
   scriptLocalDefs = CreateNewNamesMap(allLines, defNames, { offset: 'A', formatAfterChecked: '%s(' })
 
   if !empty(scriptLocalDefs)
-    var pat = printf('[a-zA-Z0-9_:#.]\@<!\(s:\)\?\(%s\)\@>(', join(keys(scriptLocalDefs), '\|'))
-    # var pat = printf(
+    const pat = printf('[a-zA-Z0-9_:#.]\@<!\(s:\)\?\(%s\)\@>(', join(keys(scriptLocalDefs), '\|'))
+    # const pat = printf(
     #   '[a-zA-Z0-9_:#.]\@<!\(s:\)\?\(%s\)%s',
     #   keys(scriptLocalDefs)->join('\|'),
     #   isVim9 ? '\>' : '\@>('
@@ -524,13 +524,13 @@ def MinifyScriptLocal()
         ScanNames(sval9Names, [line], ['^\%(var\|const\|final\) \([^=]\+\)', '^for \([^=]\+\) in '], '\([a-zA-Z_][a-zA-Z0-9_]\+\)')
       endif
     endfor
-    var sval9s = CreateNewNamesMap(allLines, sval9Names, { offset: 'k' })
+    const sval9s = CreateNewNamesMap(allLines, sval9Names, { offset: 'k' })
     allLines = ReplaceNames(allLines, sval9s, ['s:'])
   else
     # s:val
     var svalNames = []
     ScanNames(svalNames, allLines, ['^\%(let\|const\?\) \([^=]\+\)', '^for \([^=]\+\) in '], '\(s:[a-zA-Z_][a-zA-Z0-9_]\+\)')
-    var svals = CreateNewNamesMap(allLines, svalNames, { format: 's:%s' })
+    const svals = CreateNewNamesMap(allLines, svalNames, { format: 's:%s' })
     allLines = ReplaceNames(allLines, svals, ['s:'])
   endif
 enddef
@@ -539,8 +539,8 @@ def MinifySIDDefs()
   if empty(scriptLocalDefs)
     return
   endif
-  var pat = '<SID>\(' .. join(keys(scriptLocalDefs), '\|') .. '\)\@>('
   var newLines = []
+  const pat = '<SID>\(' .. join(keys(scriptLocalDefs), '\|') .. '\)\@>('
   for line in allLines
     var rep = line
     rep = substitute(rep, pat, (m) => '<SID>' .. scriptLocalDefs[m[1]], 'g')
@@ -564,12 +564,12 @@ def CreateDestPath(src: string): string
 enddef
 
 export def Minify(src: string = '%:p', dest: string = '', opt: dict<any> = {})
-  var eSrc = expand(src)
+  const eSrc = expand(src)
   allLines = readfile(eSrc)
   if !allLines
     return
   endif
-  var eDest = dest != '' ? expand(dest) : CreateDestPath(eSrc)
+  const eDest = dest != '' ? expand(dest) : CreateDestPath(eSrc)
   redraw
   echoh Delimiter
   echo 'minifing to' eDest '...'
