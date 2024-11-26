@@ -393,24 +393,28 @@ def ScanNames(names: list<any>, lines: list<string>, pat1: list<string>, pat2: s
 enddef
 
 def CreateNewNamesMap(lines: list<string>, names: list<string>, opt: dict<any> = {}): dict<any>
-  var joined = join(lines, ' | ')
+  const joined = join(lines, ' | ')
+  const fmt = get(opt, 'format', '%s')
+  const fmt2 = get(opt, 'formatAfterChecked', '%s')
+  const offset = char2nr(get(opt, 'offset', 'a')) - char2nr('0')
   var vals = {}
   var nameIndex = -1
-  var fmt = get(opt, 'format', '%s')
-  var offset = char2nr(get(opt, 'offset', 'a')) - char2nr('0')
   for name in names
     if name =~# fixed
       continue
     endif
     while true
       nameIndex  = nameIndex + 1
-      var newName = substitute(
+      var newName = printf(fmt, substitute(
         string(nameIndex),
         '\(\d\)',
-        '\=nr2char(char2nr(submatch(1)) + offset)', 'g')
-      if joined !~# '\<' .. newName .. '\>' && newName !~# reserved
-        vals[name] = printf(fmt, newName)
-        break
+        '\=nr2char(char2nr(submatch(1)) + offset)', 'g'))
+      if newName !~# reserved
+        newName = printf(fmt2, newName)
+        if joined !~# '\<' .. newName .. '\>'
+          vals[name] = newName
+          break
+        endif
       endif
     endwhile
   endfor
@@ -489,7 +493,7 @@ def MinifyScriptLocal()
   for line in allLines
     substitute(line, defPat, (m) => string(add(defNames, m[1])), '')
   endfor
-  scriptLocalDefs = CreateNewNamesMap(allLines, defNames, { offset: 'A', format: '%s(' })
+  scriptLocalDefs = CreateNewNamesMap(allLines, defNames, { offset: 'A', formatAfterChecked: '%s(' })
 
   if !empty(scriptLocalDefs)
     var pat = printf('[a-zA-Z0-9_:#.]\@<!\(s:\)\?\(%s\)\@>(', join(keys(scriptLocalDefs), '\|'))
