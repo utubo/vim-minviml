@@ -68,7 +68,7 @@ const j = 1
 final ba = '2'
 var bb = &ff
 enddef
-fu! B(b, c)
+fu! C(b, c)
 let d = a:b
 let l:e = {
 arg2: 'dict key is not renamed.'
@@ -91,11 +91,11 @@ var b = a
 enddef
 var lr = '12345'|let minifyspaces2 = 1
 nn dont minify    keymap
-def C()
+def D()
 enddef
-fu D()
+fu E()
 endf
-ec "rename <SID>C() <SID>D()"
+ec "rename <SID>D() <SID>E()"
 ec "ignore <SID>SidTestDef <SID>SidTestFunction"
 ec "ignore SidTestDef() SidTestFunction()"
 var zzz = 1
