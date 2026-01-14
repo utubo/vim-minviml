@@ -103,9 +103,9 @@ var yyy = 2
 var lt = 3
 var mk = 0
 echoh normal
-var ml = v:null_func
+var ML = v:null_func
 def G()
 enddef
-def H(a: func = G)
+def H(K: func = G)
 enddef
 g:this_is_global_val_not_renamed = 0

@@ -402,7 +402,7 @@ def CreateNewNamesMap(lines: list<string>, names: list<string>, opt: dict<any> =
   const fmt = get(opt, 'format', '%s')
   const fmt2 = get(opt, 'formatAfterChecked', '%s')
   const offset = get(opt, 'offset', OFFSET_VAR)
-  const islower = nr2char(offset) =~# '[a-z]'
+  const islower = nr2char(offset + char2nr('0')) =~# '[a-z]'
   var vals = {}
   var nameIndex = -1
   for name in names
@@ -503,8 +503,6 @@ def MinifyScriptLocal()
     substitute(line, defPat, (m) => string(add(defNames, m[1])), '')
   endfor
   scriptLocalDefs = CreateNewNamesMap(allLines, defNames, { offset: OFFSET_FUNC })
-  g:a = scriptLocalDefs
-  g:b = defNames
 
   if !empty(scriptLocalDefs)
     const pat = printf('[a-zA-Z0-9_:#.]\@<!\(s:\)\?\(%s\)\@>(', join(keys(scriptLocalDefs), '\|'))

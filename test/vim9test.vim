@@ -181,7 +181,7 @@ echohl normal # this is not renamed.
 var Funcref = v:null_func
 def Func()
 enddef
-def DefaultValues(ddddd: func = Func)
+def DefaultValues(Ddddd: func = Func)
 enddef
 
 g:this_is_global_val_not_renamed = 0
