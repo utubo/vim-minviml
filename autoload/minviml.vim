@@ -409,6 +409,9 @@ def CreateNewNamesMap(lines: list<string>, names: list<string>, opt: dict<any> =
         string(nameIndex),
         '\(\d\)',
         '\=nr2char(char2nr(submatch(1)) + offset)', 'g'))
+      if name =~# '^[A-Z]'
+        newName = substitute(newName, '^.', '\u&', '')
+      endif
       if newName !~# reserved
         newName = printf(fmt2, newName)
         if joined !~# '\<' .. newName .. '\>'

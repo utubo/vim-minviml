@@ -176,8 +176,9 @@ var xxx = 3
 
 # ----------
 # Others
-var Normal = 0
-echohl Normal # this is not renamed.
+var normal = 0
+echohl normal # this is not renamed.
+var Funcref = v:null_func
 
 g:this_is_global_val_not_renamed = 0
 
