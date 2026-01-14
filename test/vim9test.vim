@@ -179,6 +179,10 @@ var xxx = 3
 var normal = 0
 echohl normal # this is not renamed.
 var Funcref = v:null_func
+def Func()
+enddef
+def DefaultValues(ddddd: func = Func)
+enddef
 
 g:this_is_global_val_not_renamed = 0
 

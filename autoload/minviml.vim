@@ -4,8 +4,10 @@ var allLines = ['']
 var isVim9 = false
 var lineCommentPat = '^\s*"'
 
-const VIM9_VAR_OFFSET = 'k'
-const VIM9_FUNC_OFFSET = 'K'
+const OFFSET_VAR = char2nr('a') - char2nr('0')
+const OFFSET_FUNC = char2nr('A') - char2nr('0')
+const OFFSET_VIM9VAR = char2nr('k') - char2nr('0')
+const OFFSET_FUNCREF = char2nr('K') - char2nr('0')
 
 # -----------------
 # Options
@@ -399,9 +401,8 @@ def CreateNewNamesMap(lines: list<string>, names: list<string>, opt: dict<any> =
   const joined = join(lines, ' | ')
   const fmt = get(opt, 'format', '%s')
   const fmt2 = get(opt, 'formatAfterChecked', '%s')
-  const optoffset = get(opt, 'offset', 'a')
-  const offset = char2nr(optoffset) - char2nr('0')
-  const islower = optoffset =~# '[a-z]'
+  const offset = get(opt, 'offset', OFFSET_VAR)
+  const islower = nr2char(offset) =~# '[a-z]'
   var vals = {}
   var nameIndex = -1
   for name in names
@@ -409,22 +410,21 @@ def CreateNewNamesMap(lines: list<string>, names: list<string>, opt: dict<any> =
       continue
     endif
     while true
-      nameIndex  = nameIndex + 1
-      var o = offset
-      if islower && name =~# '^[A-Z]'
-          o = char2nr(VIM9_FUNC_OFFSET) - char2nr('0')
-      endif
+      nameIndex += 1
+      var o = (islower && name =~# '^[A-Z]') ? OFFSET_FUNCREF : offset
       var newName = printf(fmt, substitute(
         string(nameIndex),
         '\(\d\)',
         '\=nr2char(char2nr(submatch(1)) + o)', 'g'))
-      if newName !~# reserved
-        newName = printf(fmt2, newName)
-        if joined !~# '\<' .. newName .. '\>'
-          vals[name] = newName
-          break
-        endif
+      if newName =~# reserved
+        continue
       endif
+      newName = printf(fmt2, newName)
+      if joined =~# '\<' .. newName .. '\>'
+        continue
+      endif
+      vals[name] = newName
+      break
     endwhile
   endfor
   return vals
@@ -502,18 +502,19 @@ def MinifyScriptLocal()
   for line in allLines
     substitute(line, defPat, (m) => string(add(defNames, m[1])), '')
   endfor
-  scriptLocalDefs = CreateNewNamesMap(allLines, defNames, { offset: 'A', formatAfterChecked: '%s(' })
+  scriptLocalDefs = CreateNewNamesMap(allLines, defNames, { offset: OFFSET_FUNC })
+  g:a = scriptLocalDefs
+  g:b = defNames
 
   if !empty(scriptLocalDefs)
     const pat = printf('[a-zA-Z0-9_:#.]\@<!\(s:\)\?\(%s\)\@>(', join(keys(scriptLocalDefs), '\|'))
-    # const pat = printf(
-    #   '[a-zA-Z0-9_:#.]\@<!\(s:\)\?\(%s\)%s',
-    #   keys(scriptLocalDefs)->join('\|'),
-    #   isVim9 ? '\>' : '\@>('
-    # )
+    const pat_funcref = printf('\([,=(:]\s\+\)\(s:\)\?\(%s\)\>', join(keys(scriptLocalDefs), '\|'))
     var newLines = []
     for line in allLines
-      add(newLines, substitute(line, pat, (m) => m[1] .. scriptLocalDefs[m[2]], 'g'))
+      add(newLines, line
+        ->substitute(pat, (m) => $'{m[1]}{scriptLocalDefs[m[2]]}(', 'g')
+        ->substitute(pat_funcref, (m) => $'{m[1]}{m[2]}{scriptLocalDefs[m[3]]}', 'g')
+      )
     endfor
     allLines = newLines
   endif
@@ -533,7 +534,7 @@ def MinifyScriptLocal()
         ScanNames(sval9Names, [line], ['^\%(var\|const\|final\) \([^=]\+\)', '^for \([^=]\+\) in '], '\([a-zA-Z_][a-zA-Z0-9_]\+\)')
       endif
     endfor
-    const sval9s = CreateNewNamesMap(allLines, sval9Names, { offset: VIM9_VAR_OFFSET })
+    const sval9s = CreateNewNamesMap(allLines, sval9Names, { offset: OFFSET_VIM9VAR })
     allLines = ReplaceNames(allLines, sval9s, ['s:'])
   else
     # s:val

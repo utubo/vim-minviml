@@ -49,7 +49,7 @@ let b=2|au VimEnter * inoermap A " | inoremap B "
 set set1=setvalue1
 set set2=" comment, so this line is error
 let c=3
-fu! s:A(b,c)
+fu! s:C(b,c)
 let d=a:b
 let l:e={
 arg2: 'dict key is not renamed.'
@@ -73,9 +73,9 @@ endf
 let minifyspaces='12345'|let minifyspaces2=1
 nn dont minify    keymap
 let [s:be,s:be]=['a'.'b',1+2-3*4/5]
-fu s:B()
+fu s:D()
 endf
-ec "rename <SID>SidTestDef() <SID>B()"
+ec "rename <SID>SidTestDef() <SID>D)"
 ec "ignore <SID>SidTestDef <SID>SidTestFunction"
 ec "ignore SidTestDef() SidTestFunction()"
 let s:zzz=1

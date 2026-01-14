@@ -53,7 +53,7 @@ set set2=# not comment
 au VimEnter * var a = 1 # this is comment
 au VimEnter * nmap # this is not comment
 var c = 3
-def A(a: dict<any>, b: number): string
+def C(a: dict<any>, b: number): string
 var c = a
 var d = {
 arg2: 'dict key is not renamed.'
@@ -68,7 +68,7 @@ const j = 1
 final ba = '2'
 var bb = &ff
 enddef
-fu! C(b, c)
+fu! D(b, c)
 let d = a:b
 let l:e = {
 arg2: 'dict key is not renamed.'
@@ -91,11 +91,11 @@ var b = a
 enddef
 var lr = '12345'|let minifyspaces2 = 1
 nn dont minify    keymap
-def D()
+def E()
 enddef
-fu E()
+fu F()
 endf
-ec "rename <SID>D() <SID>E()"
+ec "rename <SID>E) <SID>F)"
 ec "ignore <SID>SidTestDef <SID>SidTestFunction"
 ec "ignore SidTestDef() SidTestFunction()"
 var zzz = 1
@@ -103,5 +103,9 @@ var yyy = 2
 var lt = 3
 var mk = 0
 echoh normal
-var ML = v:null_func
+var ml = v:null_func
+def G()
+enddef
+def H(a: func = G)
+enddef
 g:this_is_global_val_not_renamed = 0
