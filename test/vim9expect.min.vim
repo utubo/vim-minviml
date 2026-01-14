@@ -103,5 +103,5 @@ var yyy = 2
 var lt = 3
 var mk = 0
 echoh normal
-var Ml = v:null_func
+var ML = v:null_func
 g:this_is_global_val_not_renamed = 0
